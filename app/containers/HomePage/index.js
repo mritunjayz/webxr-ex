@@ -80,6 +80,7 @@ export function HomePage({
 
   const [isWebXRLoading, setIsWebXRLoading] = React.useState(false);
   const [isTapToPlace, setIsTapToPlace] = React.useState(false);
+  const [shouldAudioPlay, setShouldAudioPlay] = React.useState(false);
 
   const initScene = (gl, session) => {
     scene = new THREE.Scene();
@@ -246,6 +247,7 @@ export function HomePage({
 
   function onSessionStarted(session) {
     setIsTapToPlace(true);
+    setShouldAudioPlay(true);
     xrSession = session;
     xrButton.innerHTML = 'Exit AR';
 
@@ -287,10 +289,11 @@ export function HomePage({
 
   function onSessionEnded(event) {
     setIsTapToPlace(false);
+    setShouldAudioPlay(false);
     xrSession = null;
     xrButton.innerHTML = 'Enter AR';
     info.innerHTML = '';
-    document.getElementById('audio').stop();
+    document.getElementById('audio').pause();
     gl = null;
     if (xrHitTestSource) xrHitTestSource.cancel();
     xrHitTestSource = null;
@@ -323,8 +326,14 @@ export function HomePage({
         .addEventListener('click', toggleAnimation);
 
         setInterval(() => {
-          document
-        .getElementById('audio').play();
+          if(shouldAudioPlay){
+            document
+            .getElementById('audio').play();
+          } else {
+            document
+            .getElementById('audio').pause();
+          }
+          
         },500)
         
     }
@@ -425,7 +434,7 @@ export function HomePage({
             <button id="xr-button" disabled>
               XR is not supported in your browser
             </button>
-            {isWebXRLoading && <p>Loading...</p>}
+            {(isWebXRLoading && !isTapToPlace)&& <p>Loading...</p>}
             {(!isWebXRLoading && isTapToPlace) && <p>Place cursor and tap</p>}
             <audio id="audio" src={require('./meow.wav')} />
           </div>
