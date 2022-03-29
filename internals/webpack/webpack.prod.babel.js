@@ -7,6 +7,7 @@ const { HashedModuleIdsPlugin } = require('webpack');
 const TerserPlugin = require('terser-webpack-plugin');
 const CompressionPlugin = require('compression-webpack-plugin');
 
+const date = new Date();
 module.exports = require('./webpack.base.babel')({
   mode: 'production',
 
@@ -18,8 +19,8 @@ module.exports = require('./webpack.base.babel')({
 
   // Utilize long-term caching by adding content hashes (not compilation hashes) to compiled assets
   output: {
-    filename: `[name].[chunkhash]-${Date.now()}.js`,
-    chunkFilename: `[name].[chunkhash]-${Date.now()}.chunk.js`,
+    filename: `[name].[chunkhash]-${date.getTime()}.js`,
+    chunkFilename: `[name].[chunkhash]-${date.getTime()}.chunk.js`,
   },
 
   optimization: {
