@@ -5,34 +5,13 @@
  */
 
 import React, { useEffect, memo } from 'react';
-
-// import styled from 'styled-components/macro';
-// import { Logos } from './Logos';
-// import { Title } from './components/Title';
-//import { Lead } from './components/Lead';
-
-// import { WebXRButton } from './js/util/webxr-button.js';
-// import { Scene } from './js/render/scenes/scene.js';
-// import { Renderer, createWebGLContext } from './js/render/core/renderer.js';
-// import { Node } from './js/render/core/node.js';
-// import { Gltf2Node } from './js/render/nodes/gltf2.js';
-// import { DropShadowNode } from './js/render/nodes/drop-shadow.js';
-// import { vec3 } from './js/render/math/gl-matrix.js';
-//import DRACOLoader from './DRACOloader';
-// const aud = require('./guitar.ogg');
 const Persian = require('./Persian.glb');
-// const rectile_gltf = require('./reticle.glb');
-
 import PropTypes from 'prop-types';
 import { Helmet } from 'react-helmet';
 import { FormattedMessage } from 'react-intl';
 import { connect } from 'react-redux';
 import { compose } from 'redux';
 import { createStructuredSelector } from 'reselect';
-
-// const THREE = require("https://cdn.jsdelivr.net/npm/three@0.121.1/build/three.module.js");
-//  const GLTF = require("https://cdn.jsdelivr.net/npm/three@0.121.1/examples/jsm/loaders/GLTFLoader.js");
-//  const { GLTFLoader } = GLTF;
 
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
@@ -45,29 +24,17 @@ import {
   makeSelectError,
 } from 'containers/App/selectors';
 import H2 from 'components/H2';
-import ReposList from 'components/ReposList';
-import AtPrefix from './AtPrefix';
-import CenteredSection from './CenteredSection';
-import Form from './Form';
-import Input from './Input';
-import Section from './Section';
-import messages from './messages';
 import { loadRepos } from '../App/actions';
 import { changeUsername } from './actions';
 import { makeSelectUsername } from './selectors';
 import reducer from './reducer';
 import saga from './saga';
 
+import './index.css';
+
 const key = 'home';
 
-export function HomePage({
-  username,
-  loading,
-  error,
-  repos,
-  onSubmitForm,
-  onChangeUsername,
-}) {
+export function HomePage() {
   let renderer = null;
   let scene = null;
   let camera = null;
@@ -78,8 +45,10 @@ export function HomePage({
   let reticle = null;
   let lastFrame = Date.now();
 
-  const [isWebXRLoading, setIsWebXRLoading] = React.useState(false);
-  const [isTapToPlace, setIsTapToPlace] = React.useState(false);
+  const [isXRSupportedText, setIsXRSupportedText] = React.useState('');
+  const [isWebXRStarted, setIsWebXRStarted] = React.useState(false);
+  const [isSurfaceTracked, setIsSurfaceTracked] = React.useState(false);
+  const [isObjPlaced, setIsObjPlaced] = React.useState(false);
   const [shouldAudioPlay, setShouldAudioPlay] = React.useState(false);
 
   const initScene = (gl, session) => {
@@ -121,7 +90,7 @@ export function HomePage({
       error => console.error(error),
     );
 
-    light = new THREE.PointLight(0xffffff, 1, 100); // soft white light
+    light = new THREE.PointLight(0xffffff, 0.8, 100); // soft white light
     light.position.set(camera.position.x, camera.position.y, camera.position.z);
     // light.position.z = 1;
     // light.position.y = -1;
@@ -131,7 +100,7 @@ export function HomePage({
     directionalLight.position.set(0, 1, 0);
     scene.add(directionalLight);
 
-    var directionalLight2 = new THREE.DirectionalLight(0xffffff, 1.4);
+    var directionalLight2 = new THREE.DirectionalLight(0xffffff, 0.8);
     directionalLight2.position.set(1, 0, 0);
     scene.add(directionalLight2);
 
@@ -177,22 +146,6 @@ export function HomePage({
       info = document.getElementById('info');
     }
     checkXR();
-
-    // navigator.permissions.query({name: 'camera'})
-    // .then((permissionObj) => {
-    //  console.log(permissionObj.state, 'permissionObj.state');
-    //  onButtonClicked();
-    // })
-    // .catch((error) => {
-    //  console.log('Got error :', error);
-    // })
-
-    // navigator.mediaDevices.getUserMedia({audio: false, video: true}).then( data => {
-    //   console.log(data, 'data');
-    //   onButtonClicked()
-    // }).catch(console.log)
-
-    //onButtonClicked();
   }, []);
 
   // to control the xr session
@@ -207,15 +160,15 @@ export function HomePage({
 
   function checkXR() {
     if (!window.isSecureContext) {
-      document.getElementById('warning').innerText =
-        'WebXR unavailable. Please use secure context';
+        setIsXRSupportedText( 'WebXR unavailable. Please use secure context');
     }
     if (navigator.xr) {
       navigator.xr.addEventListener('devicechange', checkSupportedState);
+      setIsXRSupportedText('');
       checkSupportedState();
     } else {
-      document.getElementById('warning').innerText =
-        'WebXR unavailable for this browser';
+      setIsXRSupportedText(`XR is not supported in your browser or device.
+    Try switching to Chrome if not.`);
     }
   }
 
@@ -246,7 +199,7 @@ export function HomePage({
   }
 
   function onSessionStarted(session) {
-    setIsTapToPlace(true);
+    setIsWebXRStarted(true);
     setShouldAudioPlay(true);
     xrSession = session;
     xrButton.innerHTML = 'Exit AR';
@@ -288,7 +241,7 @@ export function HomePage({
   }
 
   function onSessionEnded(event) {
-    setIsTapToPlace(false);
+    setIsWebXRStarted(false);
     setShouldAudioPlay(false);
     xrSession = null;
     xrButton.innerHTML = 'Enter AR';
@@ -314,6 +267,7 @@ export function HomePage({
       //model.scale.set(2,2,2);
       console.log(model, ' -mmodeelllllll');
       scene.add(model);
+      setIsObjPlaced(true);
 
       // start object animation right away
       toggleAnimation();
@@ -362,30 +316,23 @@ export function HomePage({
   }
 
   function onXRFrame(t, frame) {
-    //setIsWebXRLoading(true)
     let session = frame.session;
     session.requestAnimationFrame(onXRFrame);
     light.position.set(camera.position.x, camera.position.y, camera.position.z);
-    //console.log(camera.position,' -camera.position');
-    console.log(isWebXRLoading, ' -isWebXRLoading');
-    //console.log(t, session, 'froommeeeee', reticle.visible);
     if (xrHitTestSource) {
       // obtain hit test results by casting a ray from the center of device screen
       // into AR view. Results indicate that ray intersected with one or more detected surfaces
       const hitTestResults = frame.getHitTestResults(xrHitTestSource);
       if (hitTestResults.length) {
-        //console.log(hitTestResults, ' -hitTestResults');
         // obtain a local pose at the intersection point
         const pose = hitTestResults[0].getPose(xrRefSpace);
         // place a reticle at the intersection point
         reticle.matrix.fromArray(pose.transform.matrix);
         reticle.visible = true;
-        setIsWebXRLoading(false)
-        console.log(isWebXRLoading, ' -isWebXRLoading');
-
+        setIsSurfaceTracked(true);
       }
       else{
-        setIsWebXRLoading(true)
+        setIsSurfaceTracked(false);
       }
     } else {
       // do not show a reticle if no surfaces are intersected
@@ -406,16 +353,13 @@ export function HomePage({
   useInjectReducer({ key, reducer });
   useInjectSaga({ key, saga });
 
-  useEffect(() => {
-    // When initial state username is not null, submit the form to load repos
-    if (username && username.trim().length > 0) onSubmitForm();
-  }, []);
-
-  const reposListProps = {
-    loading,
-    error,
-    repos,
-  };
+  function ARHtmlContent () {
+    return isWebXRStarted ?(
+      <div className="ARContent">
+        {!isSurfaceTracked ? <p>Tracking surface...</p> :  (!isObjPlaced ? <p>Place cursor and tap</p>: '')}
+      </div>
+    ) : '';
+  }
 
   return (
     <article>
@@ -429,15 +373,15 @@ export function HomePage({
       <div>
         <div id="overlay">
           <div className="info-area">
-            <div id="info" />
-            {/* {(isLoading && isImmersiveSession) && <p>Loading...</p>} */}
             <button id="xr-button" disabled>
-              XR is not supported in your browser
+              Not supported
             </button>
-            {(isWebXRLoading && !isTapToPlace)&& <p>Loading...</p>}
-            {(!isWebXRLoading && isTapToPlace) && <p>Place cursor and tap</p>}
+            <p>
+            {isXRSupportedText}
+            </p>
             <audio id="audio" src={require('./meow.wav')} />
           </div>
+          <ARHtmlContent />
         </div>
 
         {/* <CenteredSection>
