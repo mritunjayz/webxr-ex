@@ -1,37 +1,36 @@
 #overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
 }
 
 #xr-button {
-    width: 55%;
-    height: 55px;
-    border-radius: 9px;
-    position: relative;
-    left: 20%;
+  width: 55%;
+  height: 55px;
+  border-radius: 9px;
+  position: relative;
+  left: 20%;
 }
 
 .info-area {
-    position: relative;
-    top: 5%;
-    padding: 10%;
+  position: relative;
+  top: 5%;
+  padding: 10%;
 }
 
 .support-text {
-    text-align: center;
+  text-align: center;
 }
 
 .ARContent {
-    width:60%;
-    position: relative;
-    top: 10%;
-    margin: auto;
+  width: 60%;
+  position: relative;
+  top: 10%;
+  margin: auto;
 
-    color: aqua;
-    letter-spacing: 4px;
-    text-align: center;
+  color: aqua;
+  letter-spacing: 4px;
+  text-align: center;
 }

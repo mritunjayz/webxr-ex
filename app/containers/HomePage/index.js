@@ -62,21 +62,16 @@ export function HomePage() {
 
     // load our gltf model
     var loader = new GLTFLoader();
-    console.log(loader);
     loader.load(
       Persian,
       gltf => {
-        console.log(gltf, 'tttestttiinf');
         model = gltf.scene;
         model.scale.set(1.8, 1.8, 1.8);
         model.castShadow = true;
         model.receiveShadow = true;
         mixer = new THREE.AnimationMixer(model);
 
-        console.log(gltf, 'animationn');
-
         action = mixer.clipAction(gltf.animations[0]);
-        console.log(action, 'action', model);
         // let walkAction = mixer.clipAction( gltf.animations[ 1 ] );
         // let runAction = mixer.clipAction( gltf.animations[ 2 ] );
 
@@ -130,7 +125,6 @@ export function HomePage() {
     reticle.matrixAutoUpdate = false;
     reticle.visible = false;
     scene.add(reticle);
-    console.log(reticle, 'reticle');
   };
 
   // button to start XR experience
@@ -160,7 +154,7 @@ export function HomePage() {
 
   function checkXR() {
     if (!window.isSecureContext) {
-        setIsXRSupportedText('WebXR unavailable. Please use secure context');
+      setIsXRSupportedText('WebXR unavailable. Please use secure context');
     }
     if (navigator.xr) {
       navigator.xr.addEventListener('devicechange', checkSupportedState);
@@ -180,7 +174,7 @@ export function HomePage() {
       } else {
         xrButton.innerHTML = 'Not supported';
         setIsXRSupportedText(`XR is not supported in your browser or device.
-    Try switching to Chrome if not.`)
+    Try switching to Chrome if not.`);
       }
       xrButton.disabled = !supported;
     });
@@ -247,7 +241,7 @@ export function HomePage() {
     setShouldAudioPlay(false);
     xrSession = null;
     xrButton.innerHTML = 'Enter AR';
-    info.innerHTML = '';
+    //info.innerHTML = '';
     document.getElementById('audio').pause();
     gl = null;
     if (xrHitTestSource) xrHitTestSource.cancel();
@@ -280,17 +274,10 @@ export function HomePage() {
         .getElementById('overlay')
         .addEventListener('click', toggleAnimation);
 
-        setInterval(() => {
-          if(shouldAudioPlay){
-            document
-            .getElementById('audio').play();
-          } else {
-            document
-            .getElementById('audio').pause();
-          }
-          
-        },500)
-        
+      document.getElementById('audio').loop = true;
+      setTimeout(() => {
+        document.getElementById('audio').play();
+      }, 3000);
     }
   }
 
@@ -331,8 +318,7 @@ export function HomePage() {
         reticle.matrix.fromArray(pose.transform.matrix);
         reticle.visible = true;
         setIsSurfaceTracked(true);
-      }
-      else{
+      } else {
         setIsSurfaceTracked(false);
       }
     } else {
@@ -354,22 +340,27 @@ export function HomePage() {
   useInjectReducer({ key, reducer });
   useInjectSaga({ key, saga });
 
-  function ARHtmlContent () {
-    return isWebXRStarted ?(
+  function ARHtmlContent() {
+    return isWebXRStarted ? (
       <div className="ARContent">
-        {!isSurfaceTracked ? <p>Tracking surface...</p> :  (!isObjPlaced ? <p>Place cursor and tap</p>: '')}
+        {!isSurfaceTracked ? (
+          <p>Tracking surface...</p>
+        ) : !isObjPlaced ? (
+          <p>Place cursor and tap</p>
+        ) : (
+          ''
+        )}
       </div>
-    ) : '';
+    ) : (
+      ''
+    );
   }
 
   return (
     <article>
       <Helmet>
         <title>Persian Cat AR</title>
-        <meta
-          name="description"
-          content="Verse Labs Project Persian Cat AR"
-        />
+        <meta name="description" content="Verse Labs Project Persian Cat AR" />
       </Helmet>
       <div>
         <div id="overlay">
@@ -377,9 +368,7 @@ export function HomePage() {
             <button id="xr-button" disabled>
               Not supported
             </button>
-            <p className="support-text">
-            {isXRSupportedText}
-            </p>
+            <p className="support-text">{isXRSupportedText}</p>
             <audio id="audio" src={require('./meow.wav')} />
           </div>
           <ARHtmlContent />
