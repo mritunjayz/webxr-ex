@@ -160,11 +160,11 @@ export function HomePage() {
 
   function checkXR() {
     if (!window.isSecureContext) {
-        setIsXRSupportedText( 'WebXR unavailable. Please use secure context');
+        setIsXRSupportedText('WebXR unavailable. Please use secure context');
     }
     if (navigator.xr) {
       navigator.xr.addEventListener('devicechange', checkSupportedState);
-      setIsXRSupportedText('');
+      setIsXRSupportedText();
       checkSupportedState();
     } else {
       setIsXRSupportedText(`XR is not supported in your browser or device.
@@ -178,7 +178,9 @@ export function HomePage() {
         xrButton.innerHTML = 'Enter AR';
         xrButton.addEventListener('click', onButtonClicked);
       } else {
-        xrButton.innerHTML = 'AR not found';
+        xrButton.innerHTML = 'Not supported';
+        setIsXRSupportedText(`XR is not supported in your browser or device.
+    Try switching to Chrome if not.`)
       }
       xrButton.disabled = !supported;
     });
@@ -265,7 +267,6 @@ export function HomePage() {
       scene.remove(reticle);
       model.position.set(pos.x, pos.y, pos.z);
       //model.scale.set(2,2,2);
-      console.log(model, ' -mmodeelllllll');
       scene.add(model);
       setIsObjPlaced(true);
 
@@ -376,7 +377,7 @@ export function HomePage() {
             <button id="xr-button" disabled>
               Not supported
             </button>
-            <p>
+            <p className="support-text">
             {isXRSupportedText}
             </p>
             <audio id="audio" src={require('./meow.wav')} />

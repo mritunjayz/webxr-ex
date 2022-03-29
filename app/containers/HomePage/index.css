@@ -8,16 +8,21 @@
 }
 
 #xr-button {
-    width: 80%;
-    height: 50px;
+    width: 55%;
+    height: 55px;
     border-radius: 9px;
+    position: relative;
+    left: 20%;
 }
 
 .info-area {
-    width:35%;
     position: relative;
     top: 5%;
-    margin: auto;
+    padding: 10%;
+}
+
+.support-text {
+    text-align: center;
 }
 
 .ARContent {
