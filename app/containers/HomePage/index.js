@@ -12,6 +12,10 @@ import { FormattedMessage } from 'react-intl';
 import { connect } from 'react-redux';
 import { compose } from 'redux';
 import { createStructuredSelector } from 'reselect';
+import {
+  BsFillPlayCircleFill,
+  BsFillPauseCircleFill,
+} from 'react-icons/bs';
 
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
@@ -49,7 +53,7 @@ export function HomePage() {
   const [isWebXRStarted, setIsWebXRStarted] = React.useState(false);
   const [isSurfaceTracked, setIsSurfaceTracked] = React.useState(false);
   const [isObjPlaced, setIsObjPlaced] = React.useState(false);
-  const [shouldAudioPlay, setShouldAudioPlay] = React.useState(false);
+  const [isMotion, setIsMotion] = React.useState(false);
 
   const initScene = (gl, session) => {
     scene = new THREE.Scene();
@@ -196,7 +200,6 @@ export function HomePage() {
 
   function onSessionStarted(session) {
     setIsWebXRStarted(true);
-    setShouldAudioPlay(true);
     xrSession = session;
     xrButton.innerHTML = 'Exit AR';
 
@@ -238,7 +241,6 @@ export function HomePage() {
 
   function onSessionEnded(event) {
     setIsWebXRStarted(false);
-    setShouldAudioPlay(false);
     xrSession = null;
     xrButton.innerHTML = 'Enter AR';
     //info.innerHTML = '';
@@ -273,7 +275,7 @@ export function HomePage() {
       document
         .getElementById('overlay')
         .addEventListener('click', toggleAnimation);
-
+      setIsMotion(true);
       document.getElementById('audio').loop = true;
       setTimeout(() => {
         document.getElementById('audio').play();
@@ -337,6 +339,17 @@ export function HomePage() {
     renderer.render(scene, camera);
   }
 
+  function stopMotion() {
+    let audioCon = document.getElementById('audio');
+    if (isMotion) {
+      audioCon.pause();
+    } else {
+      audioCon.play();
+    }
+    //toggleAnimation();
+    setIsMotion(!isMotion);
+  }
+
   useInjectReducer({ key, reducer });
   useInjectSaga({ key, saga });
 
@@ -350,6 +363,18 @@ export function HomePage() {
         ) : (
           ''
         )}
+        {isObjPlaced &&
+          (isMotion ? (
+            <BsFillPauseCircleFill
+              onClick={stopMotion}
+              className='play-pause-button'
+            />
+          ) : (
+            <BsFillPlayCircleFill
+              onClick={stopMotion}
+              className='play-pause-button'
+            />
+          ))}
       </div>
     ) : (
       ''

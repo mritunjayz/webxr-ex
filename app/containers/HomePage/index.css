@@ -20,6 +20,15 @@
   padding: 10%;
 }
 
+.play-pause-button {
+  width: 40px;
+  height: 40px;
+  position: relative;
+  position: fixed;
+  bottom: 10%;
+  left: 46%;
+}
+
 .support-text {
   text-align: center;
 }
