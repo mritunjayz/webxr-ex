@@ -6,7 +6,8 @@
 
 import React, { useEffect, memo } from 'react';
 //const Persian = require('./Persian.glb');
-const Persian = require('./TokyoCity.glb');
+const Persian = require('./scene.glb');
+
 import PropTypes from 'prop-types';
 import { Helmet } from 'react-helmet';
 import { FormattedMessage } from 'react-intl';
@@ -81,7 +82,7 @@ export function HomePage() {
       Persian,
       gltf => {
         model = gltf.scene;
-        model.scale.set(1.8, 1.8, 1.8);
+        model.scale.set(0.04, 0.04, 0.04);
         model.castShadow = true;
         model.receiveShadow = true;
         mixer = new THREE.AnimationMixer(model);
@@ -272,8 +273,9 @@ export function HomePage() {
       // camera.getWorldPosition(cameraPostion);
       const pos = reticle.getWorldPosition(cameraPostion);
       scene.remove(reticle);
-      model.position.set(pos.x, pos.y, pos.z);
+      model.position.set(pos.x, pos.y + 2, pos.z-18);
       //model.scale.set(2,2,2);
+      console.log(model.position, pos);
       scene.add(model);
       setIsObjPlaced(true);
 
