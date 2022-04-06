@@ -13,6 +13,7 @@ import { Switch, Route } from 'react-router-dom';
 
 import PersianCat from 'containers/PersianCat/Loadable';
 import TokyoCity from 'containers/TokyoCity/Loadable';
+import School from 'containers/School/Loadable';
 import HomePage from 'containers/HomePage/Loadable';
 import FeaturePage from 'containers/FeaturePage/Loadable';
 import NotFoundPage from 'containers/NotFoundPage/Loadable';
@@ -44,6 +45,7 @@ export default function App() {
         <Route exact path="/" component={HomePage} />
         <Route exact path="/cat" component={PersianCat} />
         <Route exact path="/city" component={TokyoCity} />
+        <Route exact path="/school" component={School} />
         <Route path="/features" component={FeaturePage} />
         <Route path="" component={NotFoundPage} />
       </Switch>
