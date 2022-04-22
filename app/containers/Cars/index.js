@@ -5,34 +5,28 @@
  */
 
 import React, { useEffect, memo } from 'react';
-const Persian = require('./Persian.glb');
+const Chevy_truck = require('./model/chevy_truck.glb');
+const Mercedes = require('./model/mercedes.glb');
+const Truck = require('./model/truck.glb');
+const Jaguar = require('./model/jaguar.glb');
+const Wheel = require('./model/wheel.glb');
 import PropTypes from 'prop-types';
 import { Helmet } from 'react-helmet';
 import { FormattedMessage } from 'react-intl';
 import { connect } from 'react-redux';
 import { compose } from 'redux';
 import { createStructuredSelector } from 'reselect';
-import {
-  BsFillPlayCircleFill,
-  BsFillPauseCircleFill,
-} from 'react-icons/bs';
+import { BsFillPlayCircleFill, BsFillPauseCircleFill } from 'react-icons/bs';
 
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 
-import { useInjectReducer } from 'utils/injectReducer';
-import { useInjectSaga } from 'utils/injectSaga';
 import {
   makeSelectRepos,
   makeSelectLoading,
   makeSelectError,
 } from 'containers/App/selectors';
-import H2 from 'components/H2';
 import { loadRepos } from '../App/actions';
-import { changeUsername } from './actions';
-import { makeSelectUsername } from './selectors';
-import reducer from './reducer';
-import saga from './saga';
 
 import './index.css';
 
@@ -48,12 +42,19 @@ export function HomePage() {
   let action = null;
   let reticle = null;
   let lastFrame = Date.now();
+  let mercedes = null;
+  let truck = null;
+  let jaguar = null;
+  let wheel = null;
+
+  const carsConstant = [Mercedes, Truck, Jaguar, Wheel];
 
   const [isXRSupportedText, setIsXRSupportedText] = React.useState('');
   const [isWebXRStarted, setIsWebXRStarted] = React.useState(false);
   const [isSurfaceTracked, setIsSurfaceTracked] = React.useState(false);
   const [isObjPlaced, setIsObjPlaced] = React.useState(false);
   const [isMotion, setIsMotion] = React.useState(false);
+  const [modelAdded, setModelAdded] = React.useState([])
 
   const initScene = (gl, session) => {
     scene = new THREE.Scene();
@@ -67,27 +68,60 @@ export function HomePage() {
     // load our gltf model
     var loader = new GLTFLoader();
     loader.load(
-      Persian,
+      Chevy_truck,
       gltf => {
         model = gltf.scene;
         model.scale.set(1.8, 1.8, 1.8);
         model.castShadow = true;
         model.receiveShadow = true;
+        setModelAdded([...modelAdded,'chevy_truck'])
+        loadAllModel();
         mixer = new THREE.AnimationMixer(model);
-
-        action = mixer.clipAction(gltf.animations[0]);
-        // let walkAction = mixer.clipAction( gltf.animations[ 1 ] );
-        // let runAction = mixer.clipAction( gltf.animations[ 2 ] );
-
-        //action = [ idleAction/*, walkAction, runAction*/ ];
-        action.setLoop(THREE.LoopRepeat, 5);
-        // action[1].setLoop(THREE.LoopRepeat,2);
-        // action[2].setLoop(THREE.LoopRepeat,2);
-        // action[3].setLoop(THREE.LoopRepeat,2);
       },
       () => {},
       error => console.error(error),
     );
+
+    const loadAllModel = async() => {
+      console.log('loadAllModel');
+      carsConstant.forEach(async car => {
+        var loader = new GLTFLoader();
+        await loader.load(
+          car,
+          gltf => {
+            console.log(car)
+            if (car === 'mercedes') {
+              window.mercedes = gltf.scene;
+              mercedes = gltf.scene;
+              mercedes.scale.set(1.8, 1.8, 1.8);
+              mercedes.castShadow = true;
+              mercedes.receiveShadow = true;
+              setModelAdded([...modelAdded,'mercedes'])
+            } else if (car === 'truck') {
+              truck = gltf.scene;
+              truck.scale.set(1.8, 1.8, 1.8);
+              truck.castShadow = true;
+              truck.receiveShadow = true;
+              setModelAdded([...modelAdded,'truck'])
+            } else if (car === 'jaguar') {
+              jaguar = gltf.scene;
+              jaguar.scale.set(1.8, 1.8, 1.8);
+              jaguar.castShadow = true;
+              jaguar.receiveShadow = true;
+              setModelAdded([...modelAdded,'jaguar'])
+            } else if (car === 'wheel') {
+              wheel = gltf.scene;
+              wheel.scale.set(1.8, 1.8, 1.8);
+              wheel.castShadow = true;
+              wheel.receiveShadow = true;
+              setModelAdded([...modelAdded,'wheel'])
+            }
+          },
+          () => {},
+          error => console.error(error),
+        );
+      })
+    }
 
     light = new THREE.PointLight(0xffffff, 0.8, 100); // soft white light
     light.position.set(camera.position.x, camera.position.y, camera.position.z);
@@ -136,7 +170,7 @@ export function HomePage() {
   // to display debug information
   let info = null;
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (document.getElementById('xr-button')) {
       xrButton = document.getElementById('xr-button'); // @ts-ignore
     }
@@ -248,9 +282,27 @@ export function HomePage() {
     gl = null;
     if (xrHitTestSource) xrHitTestSource.cancel();
     xrHitTestSource = null;
+
+    //set all state to default
+    setIsXRSupportedText('');
+    setIsWebXRStarted(false);
+    setIsSurfaceTracked(false);
+    setIsObjPlaced(false);
+    setIsMotion(false);
   }
 
-  function placeObject() {
+  const hasParentWithMatchingSelector = (target, selector) => {
+    return [...document.querySelectorAll(selector)].some(el =>
+      el.contains(target),
+    );
+  };
+
+  function placeObject(event) {
+    console.log(
+      event,
+      hasParentWithMatchingSelector(event.target, '.dropdown'),
+    );
+
     if (reticle.visible && model) {
       reticle.visible = false;
       xrHitTestSource.cancel();
@@ -267,32 +319,54 @@ export function HomePage() {
       setIsObjPlaced(true);
 
       // start object animation right away
-      toggleAnimation();
       // instead of placing an object we will just toggle animation state
       document
         .getElementById('overlay')
         .removeEventListener('click', placeObject);
       document
         .getElementById('overlay')
-        .addEventListener('click', toggleAnimation);
+        .addEventListener('click', handelOverlayClick);
+        toggleAnimation();
       setIsMotion(true);
-      document.getElementById('audio').loop = true;
-      setTimeout(() => {
-        document.getElementById('audio').play();
-      }, 3000);
+      //document.getElementById('audio').loop = true;
+      // setTimeout(() => {
+      //   document.getElementById('audio').play();
+      // }, 3000);
     }
   }
 
-  function toggleAnimation() {
-    if (action.isRunning()) {
-      //action.forEach(element => {
-      action.stop();
-      action.reset();
-      // });
+  function toggleAnimation(event) {
+
+  }
+
+  function handelOverlayClick(event) {
+    console.log(
+      event,
+      hasParentWithMatchingSelector(event.target, '.dropdown'),
+      mercedes,
+      window.mercedes,
+      truck,model
+    );
+
+    if (hasParentWithMatchingSelector(event.target, '.dropdown')) {
+      var loader = new GLTFLoader();
+         loader.load(
+          Wheel,
+          gltf => {
+            truck = gltf.scene;
+              truck.scale.set(1.8, 1.8, 1.8);
+              truck.castShadow = true;
+              truck.receiveShadow = true;
+              scene.remove(model);
+              scene.add(truck);
+
+          },
+          () => {},
+          error => console.error(error),
+        );
+
     } else {
-      //action.forEach(element => {
-      action.play();
-      // });
+      toggleAnimation();
     }
   }
 
@@ -340,18 +414,15 @@ export function HomePage() {
   }
 
   function stopMotion() {
-    let audioCon = document.getElementById('audio');
-    if (isMotion) {
-      audioCon.pause();
-    } else {
-      audioCon.play();
-    }
-    //toggleAnimation();
-    setIsMotion(!isMotion);
+    // let audioCon = document.getElementById('audio');
+    // if (isMotion) {
+    //   audioCon.pause();
+    // } else {
+    //   audioCon.play();
+    // }
+    // //toggleAnimation();
+    // setIsMotion(!isMotion);
   }
-
-  useInjectReducer({ key, reducer });
-  useInjectSaga({ key, saga });
 
   function ARHtmlContent() {
     return isWebXRStarted ? (
@@ -367,14 +438,28 @@ export function HomePage() {
           (isMotion ? (
             <BsFillPauseCircleFill
               onClick={stopMotion}
-              className='play-pause-button'
+              className="play-pause-button"
             />
           ) : (
             <BsFillPlayCircleFill
               onClick={stopMotion}
-              className='play-pause-button'
+              className="play-pause-button"
             />
           ))}
+
+        {isObjPlaced && (<div className="dropdown" >
+  <button className="dropbtn">Dropdown</button>
+  <div id="myDropdown" className="dropdown-content">
+    {modelAdded.map(element => {
+      return (
+        <div key={element}>
+          <button>{element}</button>
+        </div>
+      );
+    })}
+  </div>
+</div>)}
+        
       </div>
     ) : (
       ''
@@ -384,8 +469,8 @@ export function HomePage() {
   return (
     <article>
       <Helmet>
-        <title>Persian Cat AR</title>
-        <meta name="description" content="Verse Labs Project Persian Cat AR" />
+        <title>Cars Demo</title>
+        <meta name="description" content="Verse Labs Project car options AR" />
       </Helmet>
       <div>
         <div id="overlay">
@@ -394,19 +479,10 @@ export function HomePage() {
               Not supported
             </button>
             <p className="support-text">{isXRSupportedText}</p>
-            <audio id="audio" src={require('./meow.wav')} />
+            {/* <audio id="audio" src={require('./meow.wav')} /> */}
           </div>
           <ARHtmlContent />
         </div>
-
-        {/* <CenteredSection>
-          <H2>
-            <FormattedMessage {...messages.startProjectHeader} />
-          </H2>
-          <p>
-            <FormattedMessage {...messages.startProjectMessage} />
-          </p>
-        </CenteredSection> */}
       </div>
     </article>
   );
@@ -423,7 +499,6 @@ HomePage.propTypes = {
 
 const mapStateToProps = createStructuredSelector({
   repos: makeSelectRepos(),
-  username: makeSelectUsername(),
   loading: makeSelectLoading(),
   error: makeSelectError(),
 });
