@@ -46,15 +46,22 @@ export function HomePage() {
   let truck = null;
   let jaguar = null;
   let wheel = null;
+  let currentModel = null;
 
-  const carsConstant = [Mercedes, Truck, Jaguar, Wheel];
+  const carsConstant = [
+    { path: Chevy_truck, name: 'Chevy_truck' },
+    { path: Mercedes, name: 'Mercedes' },
+    { path: Wheel, name: 'Wheel' },
+    { path: Truck, name: 'Truck' },
+    { path: Jaguar, name: 'Jaguar' },
+  ];
 
   const [isXRSupportedText, setIsXRSupportedText] = React.useState('');
   const [isWebXRStarted, setIsWebXRStarted] = React.useState(false);
   const [isSurfaceTracked, setIsSurfaceTracked] = React.useState(false);
   const [isObjPlaced, setIsObjPlaced] = React.useState(false);
   const [isMotion, setIsMotion] = React.useState(false);
-  const [modelAdded, setModelAdded] = React.useState([])
+  const [modelAdded, setModelAdded] = React.useState([]);
 
   const initScene = (gl, session) => {
     scene = new THREE.Scene();
@@ -67,14 +74,16 @@ export function HomePage() {
 
     // load our gltf model
     var loader = new GLTFLoader();
+    //setModelAdded('dddffdfds')
     loader.load(
       Chevy_truck,
       gltf => {
         model = gltf.scene;
-        model.scale.set(1.8, 1.8, 1.8);
+        //model.scale.set(1.8, 1.8, 1.8);
         model.castShadow = true;
         model.receiveShadow = true;
-        setModelAdded([...modelAdded,'chevy_truck'])
+        currentModel = model;
+        setModelAdded([...modelAdded, 'chevy_truck']);
         loadAllModel();
         mixer = new THREE.AnimationMixer(model);
       },
@@ -82,46 +91,43 @@ export function HomePage() {
       error => console.error(error),
     );
 
-    const loadAllModel = async() => {
+    const loadAllModel = async () => {
       console.log('loadAllModel');
       carsConstant.forEach(async car => {
         var loader = new GLTFLoader();
         await loader.load(
-          car,
+          car.path,
           gltf => {
-            console.log(car)
-            if (car === 'mercedes') {
+            console.log(car);
+            if (car.name === 'Mercedes') {
               window.mercedes = gltf.scene;
               mercedes = gltf.scene;
-              mercedes.scale.set(1.8, 1.8, 1.8);
+              //mercedes.scale.set(1.8, 1.8, 1.8);
               mercedes.castShadow = true;
               mercedes.receiveShadow = true;
-              setModelAdded([...modelAdded,'mercedes'])
-            } else if (car === 'truck') {
+            } else if (car.name === 'Truck') {
               truck = gltf.scene;
-              truck.scale.set(1.8, 1.8, 1.8);
+              //truck.scale.set(1.8, 1.8, 1.8);
               truck.castShadow = true;
               truck.receiveShadow = true;
-              setModelAdded([...modelAdded,'truck'])
-            } else if (car === 'jaguar') {
+            } else if (car.name === 'Jaguar') {
               jaguar = gltf.scene;
-              jaguar.scale.set(1.8, 1.8, 1.8);
+              //jaguar.scale.set(1.8, 1.8, 1.8);
               jaguar.castShadow = true;
               jaguar.receiveShadow = true;
-              setModelAdded([...modelAdded,'jaguar'])
-            } else if (car === 'wheel') {
+            } else if (car.name === 'Wheel') {
               wheel = gltf.scene;
-              wheel.scale.set(1.8, 1.8, 1.8);
+              //wheel.scale.set(1.8, 1.8, 1.8);
               wheel.castShadow = true;
               wheel.receiveShadow = true;
-              setModelAdded([...modelAdded,'wheel'])
             }
           },
           () => {},
           error => console.error(error),
         );
-      })
-    }
+        setModelAdded(['Chevy_truck', 'Mercedes', 'Truck', 'Jaguar', 'Wheel']);
+      });
+    };
 
     light = new THREE.PointLight(0xffffff, 0.8, 100); // soft white light
     light.position.set(camera.position.x, camera.position.y, camera.position.z);
@@ -326,7 +332,6 @@ export function HomePage() {
       document
         .getElementById('overlay')
         .addEventListener('click', handelOverlayClick);
-        toggleAnimation();
       setIsMotion(true);
       //document.getElementById('audio').loop = true;
       // setTimeout(() => {
@@ -335,40 +340,43 @@ export function HomePage() {
     }
   }
 
-  function toggleAnimation(event) {
-
-  }
-
   function handelOverlayClick(event) {
-    console.log(
-      event,
-      hasParentWithMatchingSelector(event.target, '.dropdown'),
-      mercedes,
-      window.mercedes,
-      truck,model
-    );
+    console.log(modelAdded);
 
     if (hasParentWithMatchingSelector(event.target, '.dropdown')) {
-      var loader = new GLTFLoader();
-         loader.load(
-          Wheel,
-          gltf => {
-            truck = gltf.scene;
-              truck.scale.set(1.8, 1.8, 1.8);
-              truck.castShadow = true;
-              truck.receiveShadow = true;
-              scene.remove(model);
-              scene.add(truck);
-
-          },
-          () => {},
-          error => console.error(error),
-        );
-
-    } else {
-      toggleAnimation();
+      console.log(hasParentWithMatchingSelector(event.target, '.Wheel'));
+      if (hasParentWithMatchingSelector(event.target, '.Wheel')) {
+        scene.remove(currentModel);
+        scene.add(wheel);
+        currentModel = wheel;
+      }
+      if (hasParentWithMatchingSelector(event.target, '.Truck')) {
+        scene.remove(currentModel);
+        scene.add(truck);
+        currentModel = truck;
+      }
+      if (hasParentWithMatchingSelector(event.target, '.Mercedes')) {
+        scene.remove(currentModel);
+        scene.add(mercedes);
+        currentModel = mercedes;
+      }
+      if (hasParentWithMatchingSelector(event.target, '.Jaguar')) {
+        scene.remove(currentModel);
+        scene.add(jaguar);
+        currentModel = jaguar;
+      }
+      if (hasParentWithMatchingSelector(event.target, '.Chevy_truck')) {
+        scene.remove(currentModel);
+        scene.add(model);
+        currentModel = model;
+      }
     }
   }
+
+  const openDropdown = () =>
+    document
+      .getElementsByClassName('dropdown-content')[0]
+      .classList.toggle('show');
 
   // Utility function to update animated objects
   function updateAnimation() {
@@ -413,17 +421,6 @@ export function HomePage() {
     renderer.render(scene, camera);
   }
 
-  function stopMotion() {
-    // let audioCon = document.getElementById('audio');
-    // if (isMotion) {
-    //   audioCon.pause();
-    // } else {
-    //   audioCon.play();
-    // }
-    // //toggleAnimation();
-    // setIsMotion(!isMotion);
-  }
-
   function ARHtmlContent() {
     return isWebXRStarted ? (
       <div className="ARContent">
@@ -434,32 +431,23 @@ export function HomePage() {
         ) : (
           ''
         )}
-        {isObjPlaced &&
-          (isMotion ? (
-            <BsFillPauseCircleFill
-              onClick={stopMotion}
-              className="play-pause-button"
-            />
-          ) : (
-            <BsFillPlayCircleFill
-              onClick={stopMotion}
-              className="play-pause-button"
-            />
-          ))}
 
-        {isObjPlaced && (<div className="dropdown" >
-  <button className="dropbtn">Dropdown</button>
-  <div id="myDropdown" className="dropdown-content">
-    {modelAdded.map(element => {
-      return (
-        <div key={element}>
-          <button>{element}</button>
-        </div>
-      );
-    })}
-  </div>
-</div>)}
-        
+        {isObjPlaced && (
+          <div className="dropdown">
+            <div id="myDropdown" className="dropdown-content">
+              {modelAdded.map(element => {
+                return (
+                  <div key={element} className={element}>
+                    <button>{element}</button>
+                  </div>
+                );
+              })}
+            </div>
+            <button className="dropbtn" onClick={openDropdown}>
+              Dropdown
+            </button>
+          </div>
+        )}
       </div>
     ) : (
       ''
