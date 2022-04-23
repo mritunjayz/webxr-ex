@@ -5,6 +5,7 @@
  */
 
 import React, { useEffect, memo } from 'react';
+import classNames from 'classnames';
 const Chevy_truck = require('./model/chevy_truck.glb');
 const Mercedes = require('./model/mercedes.glb');
 const Truck = require('./model/truck.glb');
@@ -12,11 +13,9 @@ const Jaguar = require('./model/jaguar.glb');
 const Wheel = require('./model/wheel.glb');
 import PropTypes from 'prop-types';
 import { Helmet } from 'react-helmet';
-import { FormattedMessage } from 'react-intl';
 import { connect } from 'react-redux';
 import { compose } from 'redux';
 import { createStructuredSelector } from 'reselect';
-import { BsFillPlayCircleFill, BsFillPauseCircleFill } from 'react-icons/bs';
 
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
@@ -29,8 +28,7 @@ import {
 import { loadRepos } from '../App/actions';
 
 import './index.css';
-
-const key = 'home';
+import startEX from '../../assets/startEx.png';
 
 export function HomePage() {
   let renderer = null;
@@ -39,7 +37,6 @@ export function HomePage() {
   let light = null;
   let model = null;
   let mixer = null;
-  let action = null;
   let reticle = null;
   let lastFrame = Date.now();
   let mercedes = null;
@@ -213,7 +210,7 @@ export function HomePage() {
   function checkSupportedState() {
     navigator.xr.isSessionSupported('immersive-ar').then(supported => {
       if (supported) {
-        xrButton.innerHTML = 'Enter AR';
+        xrButton.innerHTML = 'Start Experience';
         xrButton.addEventListener('click', onButtonClicked);
       } else {
         xrButton.innerHTML = 'Not supported';
@@ -461,9 +458,21 @@ export function HomePage() {
         <meta name="description" content="Verse Labs Project car options AR" />
       </Helmet>
       <div>
-        <div id="overlay">
+        <div
+          id="overlay"
+          style={{
+            background: `url(${startEX}) no-repeat center fixed`,
+            backgroundSize: 'cover',
+          }}
+        >
           <div className="info-area">
-            <button id="xr-button" disabled>
+            <button
+              id="xr-button"
+              disabled
+              className={classNames({
+                'xr-button-start': !isWebXRStarted,
+              })}
+            >
               Not supported
             </button>
             <p className="support-text">{isXRSupportedText}</p>

@@ -12,6 +12,17 @@
   border-radius: 9px;
   position: relative;
   left: 20%;
+  background-color: #253da1;
+  border-radius: 40px;
+  color: white;
+  letter-spacing: 2px;
+  font-family: system-ui;
+  border: 0px;
+}
+
+.xr-button-start {
+  position: fixed !important;
+  top: 80%;
 }
 
 .info-area {
@@ -39,7 +50,7 @@
   top: 10%;
   margin: auto;
 
-  color: aqua;
+  color: #253da1;
   letter-spacing: 4px;
   text-align: center;
 }
