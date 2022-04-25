@@ -18,11 +18,13 @@
   letter-spacing: 2px;
   font-family: system-ui;
   border: 0px;
+  display: none;
 }
 
 .xr-button-start {
   position: fixed !important;
   top: 80%;
+  display: block!important;
 }
 
 .info-area {
