@@ -20,6 +20,8 @@ import {
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 
+import StartExperience from 'components/StartExperience';
+
 import { useInjectReducer } from 'utils/injectReducer';
 import { useInjectSaga } from 'utils/injectSaga';
 import {
@@ -173,7 +175,7 @@ export function HomePage() {
   function checkSupportedState() {
     navigator.xr.isSessionSupported('immersive-ar').then(supported => {
       if (supported) {
-        xrButton.innerHTML = 'Enter AR';
+        xrButton.innerHTML = 'Start Experience';
         xrButton.addEventListener('click', onButtonClicked);
       } else {
         xrButton.innerHTML = 'Not supported';
@@ -242,7 +244,7 @@ export function HomePage() {
   function onSessionEnded(event) {
     setIsWebXRStarted(false);
     xrSession = null;
-    xrButton.innerHTML = 'Enter AR';
+    xrButton.innerHTML = 'Start Experience';
     //info.innerHTML = '';
     document.getElementById('audio').pause();
     gl = null;
@@ -356,13 +358,6 @@ export function HomePage() {
   function ARHtmlContent() {
     return isWebXRStarted ? (
       <div className="ARContent">
-        {!isSurfaceTracked ? (
-          <p>Tracking surface...</p>
-        ) : !isObjPlaced ? (
-          <p>Place cursor and tap</p>
-        ) : (
-          ''
-        )}
         {isObjPlaced &&
           (isMotion ? (
             <BsFillPauseCircleFill
@@ -384,18 +379,17 @@ export function HomePage() {
   return (
     <article>
       <Helmet>
-        <title>Persian Cat AR</title>
+        <title>Animated Dog</title>
         <meta name="description" content="Verse Labs Project Persian Cat AR" />
       </Helmet>
       <div>
-        <div id="overlay">
-          <div className="info-area">
-            <button id="xr-button" disabled>
-              Not supported
-            </button>
-            <p className="support-text">{isXRSupportedText}</p>
-            <audio id="audio" src={require('./meow.wav')} />
-          </div>
+      <StartExperience
+          isWebXRStarted={isWebXRStarted}
+          isXRSupportedText={isXRSupportedText}
+          isSurfaceTracked={isSurfaceTracked}
+          isObjPlaced={isObjPlaced}
+          ARHtmlContent={ARHtmlContent}
+        />
           <ARHtmlContent />
         </div>
 
@@ -407,7 +401,6 @@ export function HomePage() {
             <FormattedMessage {...messages.startProjectMessage} />
           </p>
         </CenteredSection> */}
-      </div>
     </article>
   );
 }

@@ -5,7 +5,6 @@
  */
 
 import React, { useEffect, memo } from 'react';
-import classNames from 'classnames';
 const Chevy_truck = require('./model/chevy_truck.glb');
 const Mercedes = require('./model/mercedes.glb');
 const Truck = require('./model/truck.glb');
@@ -16,6 +15,8 @@ import { Helmet } from 'react-helmet';
 import { connect } from 'react-redux';
 import { compose } from 'redux';
 import { createStructuredSelector } from 'reselect';
+
+import StartExperience from 'components/StartExperience';
 
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
@@ -28,7 +29,6 @@ import {
 import { loadRepos } from '../App/actions';
 
 import './index.css';
-import startEX from '../../assets/startEx.png';
 
 export function HomePage() {
   let renderer = null;
@@ -57,7 +57,6 @@ export function HomePage() {
   const [isWebXRStarted, setIsWebXRStarted] = React.useState(false);
   const [isSurfaceTracked, setIsSurfaceTracked] = React.useState(false);
   const [isObjPlaced, setIsObjPlaced] = React.useState(false);
-  const [isMotion, setIsMotion] = React.useState(false);
   const [modelAdded, setModelAdded] = React.useState([]);
 
   const initScene = (gl, session) => {
@@ -88,28 +87,24 @@ export function HomePage() {
       error => console.error(error),
     );
 
-    const loadAllModel = async () => {
-      console.log('loadAllModel');
+    const loadAllModel = () => {
       carsConstant.forEach(async car => {
         var loader = new GLTFLoader();
-        await loader.load(
+        loader.load(
           car.path,
           gltf => {
             console.log(car);
             if (car.name === 'Mercedes') {
               window.mercedes = gltf.scene;
               mercedes = gltf.scene;
-              //mercedes.scale.set(1.8, 1.8, 1.8);
               mercedes.castShadow = true;
               mercedes.receiveShadow = true;
             } else if (car.name === 'Truck') {
               truck = gltf.scene;
-              //truck.scale.set(1.8, 1.8, 1.8);
               truck.castShadow = true;
               truck.receiveShadow = true;
             } else if (car.name === 'Jaguar') {
               jaguar = gltf.scene;
-              //jaguar.scale.set(1.8, 1.8, 1.8);
               jaguar.castShadow = true;
               jaguar.receiveShadow = true;
             } else if (car.name === 'Wheel') {
@@ -279,9 +274,9 @@ export function HomePage() {
   function onSessionEnded(event) {
     setIsWebXRStarted(false);
     xrSession = null;
-    xrButton.innerHTML = 'Enter AR';
+    xrButton.innerHTML = 'Start Experience';
     //info.innerHTML = '';
-    document.getElementById('audio').pause();
+    //document.getElementById('audio').pause();
     gl = null;
     if (xrHitTestSource) xrHitTestSource.cancel();
     xrHitTestSource = null;
@@ -291,7 +286,6 @@ export function HomePage() {
     setIsWebXRStarted(false);
     setIsSurfaceTracked(false);
     setIsObjPlaced(false);
-    setIsMotion(false);
   }
 
   const hasParentWithMatchingSelector = (target, selector) => {
@@ -300,12 +294,7 @@ export function HomePage() {
     );
   };
 
-  function placeObject(event) {
-    console.log(
-      event,
-      hasParentWithMatchingSelector(event.target, '.dropdown'),
-    );
-
+  function placeObject() {
     if (reticle.visible && model) {
       reticle.visible = false;
       xrHitTestSource.cancel();
@@ -329,11 +318,6 @@ export function HomePage() {
       document
         .getElementById('overlay')
         .addEventListener('click', handelOverlayClick);
-      setIsMotion(true);
-      //document.getElementById('audio').loop = true;
-      // setTimeout(() => {
-      //   document.getElementById('audio').play();
-      // }, 3000);
     }
   }
 
@@ -421,14 +405,6 @@ export function HomePage() {
   function ARHtmlContent() {
     return isWebXRStarted ? (
       <div className="ARContent">
-        {!isSurfaceTracked ? (
-          <p>Tracking surface...</p>
-        ) : !isObjPlaced ? (
-          <p>Place cursor and tap</p>
-        ) : (
-          ''
-        )}
-
         {isObjPlaced && (
           <div className="dropdown">
             <div id="myDropdown" className="dropdown-content">
@@ -458,28 +434,14 @@ export function HomePage() {
         <meta name="description" content="Verse Labs Project car options AR" />
       </Helmet>
       <div>
-        <div
-          id="overlay"
-          style={{
-            background: `url(${startEX}) no-repeat center fixed`,
-            backgroundSize: 'cover',
-          }}
-        >
-          <div className="info-area">
-            <button
-              id="xr-button"
-              disabled
-              className={classNames({
-                'xr-button-start': !isWebXRStarted,
-              })}
-            >
-              Not supported
-            </button>
-            <p className="support-text">{isXRSupportedText}</p>
-            {/* <audio id="audio" src={require('./meow.wav')} /> */}
-          </div>
-          <ARHtmlContent />
-        </div>
+        <StartExperience
+          isWebXRStarted={isWebXRStarted}
+          isXRSupportedText={isXRSupportedText}
+          isSurfaceTracked={isSurfaceTracked}
+          isObjPlaced={isObjPlaced}
+          ARHtmlContent={ARHtmlContent}
+        />
+        <ARHtmlContent />
       </div>
     </article>
   );

@@ -1,0 +1,49 @@
+#overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+  }
+
+  #xr-button {
+    width: 55%;
+    height: 55px;
+    border-radius: 9px;
+    position: relative;
+    left: 24%;
+    background-color: #253da1;
+    border-radius: 40px;
+    color: white;
+    letter-spacing: 2px;
+    font-family: system-ui;
+    border: 0px;
+    display: none;
+  }
+
+  .xr-button-start {
+    position: fixed !important;
+    top: 80%;
+    display: block!important;
+  }
+
+  .common-ar-content {
+    width: 60%;
+    position: relative;
+    top: 10%;
+    margin: auto;
+  
+    color: #253da1;
+    letter-spacing: 4px;
+    text-align: center;
+  }
+
+  .support-text {
+    text-align: center;
+  }
+
+  .info-area {
+    position: relative;
+    top: 5%;
+    padding: 10%;
+  }
