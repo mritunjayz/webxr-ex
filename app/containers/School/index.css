@@ -43,3 +43,9 @@
   letter-spacing: 4px;
   text-align: center;
 }
+
+#test-slider {
+  right: 30%;
+  position: relative;
+  top: 80%;
+}

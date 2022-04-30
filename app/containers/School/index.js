@@ -8,17 +8,16 @@ import React, { useEffect, memo } from 'react';
 const Persian = require('./school.glb');
 import PropTypes from 'prop-types';
 import { Helmet } from 'react-helmet';
-import { FormattedMessage } from 'react-intl';
 import { connect } from 'react-redux';
 import { compose } from 'redux';
 import { createStructuredSelector } from 'reselect';
-import {
-  BsFillPlayCircleFill,
-  BsFillPauseCircleFill,
-} from 'react-icons/bs';
+import Stack from '@mui/material/Stack';
+import Slider from '@mui/material/Slider';
 
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
+
+import StartExperience from 'components/StartExperience';
 
 import { useInjectReducer } from 'utils/injectReducer';
 import { useInjectSaga } from 'utils/injectSaga';
@@ -27,7 +26,6 @@ import {
   makeSelectLoading,
   makeSelectError,
 } from 'containers/App/selectors';
-import H2 from 'components/H2';
 import { loadRepos } from '../App/actions';
 import { changeUsername } from './actions';
 import { makeSelectUsername } from './selectors';
@@ -53,7 +51,6 @@ export function HomePage() {
   const [isWebXRStarted, setIsWebXRStarted] = React.useState(false);
   const [isSurfaceTracked, setIsSurfaceTracked] = React.useState(false);
   const [isObjPlaced, setIsObjPlaced] = React.useState(false);
-  const [isMotion, setIsMotion] = React.useState(false);
 
   const initScene = (gl, session) => {
     scene = new THREE.Scene();
@@ -74,16 +71,6 @@ export function HomePage() {
         model.castShadow = true;
         model.receiveShadow = true;
         mixer = new THREE.AnimationMixer(model);
-
-        action = mixer.clipAction(gltf.animations[0]);
-        // let walkAction = mixer.clipAction( gltf.animations[ 1 ] );
-        // let runAction = mixer.clipAction( gltf.animations[ 2 ] );
-
-        //action = [ idleAction/*, walkAction, runAction*/ ];
-        action.setLoop(THREE.LoopRepeat, 5);
-        // action[1].setLoop(THREE.LoopRepeat,2);
-        // action[2].setLoop(THREE.LoopRepeat,2);
-        // action[3].setLoop(THREE.LoopRepeat,2);
       },
       () => {},
       error => console.error(error),
@@ -136,7 +123,7 @@ export function HomePage() {
   // to display debug information
   let info = null;
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (document.getElementById('xr-button')) {
       xrButton = document.getElementById('xr-button'); // @ts-ignore
     }
@@ -173,7 +160,7 @@ export function HomePage() {
   function checkSupportedState() {
     navigator.xr.isSessionSupported('immersive-ar').then(supported => {
       if (supported) {
-        xrButton.innerHTML = 'Enter AR';
+        xrButton.innerHTML = 'Start Experience';
         xrButton.addEventListener('click', onButtonClicked);
       } else {
         xrButton.innerHTML = 'Not supported';
@@ -242,9 +229,7 @@ export function HomePage() {
   function onSessionEnded(event) {
     setIsWebXRStarted(false);
     xrSession = null;
-    xrButton.innerHTML = 'Enter AR';
-    //info.innerHTML = '';
-    document.getElementById('audio').pause();
+    xrButton.innerHTML = 'Start Experience';
     gl = null;
     if (xrHitTestSource) xrHitTestSource.cancel();
     xrHitTestSource = null;
@@ -275,25 +260,25 @@ export function HomePage() {
       document
         .getElementById('overlay')
         .addEventListener('click', toggleAnimation);
-      setIsMotion(true);
-      document.getElementById('audio').loop = true;
-      setTimeout(() => {
-        document.getElementById('audio').play();
-      }, 3000);
+      document
+        .getElementById('overlay')
+        .addEventListener('touchmove', toggleAnimation);
     }
   }
 
-  function toggleAnimation() {
-    if (action.isRunning()) {
-      //action.forEach(element => {
-      action.stop();
-      action.reset();
-      // });
-    } else {
-      //action.forEach(element => {
-      action.play();
-      // });
-    }
+  const hasParentWithMatchingSelector = (target, selector) => {
+    return [...document.querySelectorAll(selector)].some(el =>
+      el.contains(target),
+    );
+  };
+
+  function toggleAnimation(event) {
+    if (event)
+      if (hasParentWithMatchingSelector(event.target, '#test-slider')) {
+        const slide = document.getElementById('test-slider').lastChild
+          .firstChild.value;
+        model.scale.set(slide, slide, slide);
+      }
   }
 
   // Utility function to update animated objects
@@ -339,42 +324,28 @@ export function HomePage() {
     renderer.render(scene, camera);
   }
 
-  function stopMotion() {
-    let audioCon = document.getElementById('audio');
-    if (isMotion) {
-      audioCon.pause();
-    } else {
-      audioCon.play();
-    }
-    //toggleAnimation();
-    setIsMotion(!isMotion);
-  }
-
   useInjectReducer({ key, reducer });
   useInjectSaga({ key, saga });
 
   function ARHtmlContent() {
     return isWebXRStarted ? (
       <div className="ARContent">
-        {!isSurfaceTracked ? (
-          <p>Tracking surface...</p>
-        ) : !isObjPlaced ? (
-          <p>Place cursor and tap</p>
-        ) : (
-          ''
+        {isObjPlaced && (
+          <Stack sx={{ height: 200 }} spacing={1} direction="row">
+            <Slider
+              size="small"
+              defaultValue={1}
+              aria-label="Small"
+              valueLabelDisplay="auto"
+              id="test-slider"
+              orientation="vertical"
+              step={0.2}
+              min={0}
+              max={6}
+              track={false}
+            />
+          </Stack>
         )}
-        {isObjPlaced &&
-          (isMotion ? (
-            <BsFillPauseCircleFill
-              onClick={stopMotion}
-              className='play-pause-button'
-            />
-          ) : (
-            <BsFillPlayCircleFill
-              onClick={stopMotion}
-              className='play-pause-button'
-            />
-          ))}
       </div>
     ) : (
       ''
@@ -384,29 +355,18 @@ export function HomePage() {
   return (
     <article>
       <Helmet>
-        <title>Persian Cat AR</title>
+        <title>AAP School Model</title>
         <meta name="description" content="Verse Labs Project Persian Cat AR" />
       </Helmet>
       <div>
-        <div id="overlay">
-          <div className="info-area">
-            <button id="xr-button" disabled>
-              Not supported
-            </button>
-            <p className="support-text">{isXRSupportedText}</p>
-            <audio id="audio" src={require('./meow.wav')} />
-          </div>
-          <ARHtmlContent />
-        </div>
-
-        {/* <CenteredSection>
-          <H2>
-            <FormattedMessage {...messages.startProjectHeader} />
-          </H2>
-          <p>
-            <FormattedMessage {...messages.startProjectMessage} />
-          </p>
-        </CenteredSection> */}
+        <StartExperience
+          isWebXRStarted={isWebXRStarted}
+          isXRSupportedText={isXRSupportedText}
+          isSurfaceTracked={isSurfaceTracked}
+          isObjPlaced={isObjPlaced}
+          ARHtmlContent={ARHtmlContent}
+        />
+        <ARHtmlContent />
       </div>
     </article>
   );

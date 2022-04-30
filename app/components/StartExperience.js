@@ -1,5 +1,6 @@
 import React from 'react';
 import startEX from 'assets/startEx.png';
+import mobileTrack from 'assets/mobileTrack.png';
 import classNames from 'classnames';
 
 import './StartExperience.css';
@@ -36,7 +37,10 @@ function StartExperience({
         {isWebXRStarted && (
           <div className="common-ar-content">
             {!isSurfaceTracked ? (
-              <p>Tracking surface...</p>
+              <div>
+                <p>Tracking surface...</p>
+                {/* <img src={mobileTrack} alt="mobile track" /> */}
+              </div>
             ) : !isObjPlaced ? (
               <p>Place cursor and tap</p>
             ) : (
