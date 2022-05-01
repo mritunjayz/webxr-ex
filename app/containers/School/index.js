@@ -5,7 +5,6 @@
  */
 
 import React, { useEffect, memo } from 'react';
-const Persian = require('./school.glb');
 import PropTypes from 'prop-types';
 import { Helmet } from 'react-helmet';
 import { connect } from 'react-redux';
@@ -33,17 +32,19 @@ import reducer from './reducer';
 import saga from './saga';
 
 import './index.css';
+const Persian = require('./school.glb');
 
 const key = 'home';
 
-export function HomePage() {
+export function HomePage({ location }) {
   let renderer = null;
   let scene = null;
   let camera = null;
   let light = null;
   let model = null;
+  let hitTestPosition = null;
   let mixer = null;
-  let action = null;
+  const action = null;
   let reticle = null;
   let lastFrame = Date.now();
 
@@ -51,6 +52,9 @@ export function HomePage() {
   const [isWebXRStarted, setIsWebXRStarted] = React.useState(false);
   const [isSurfaceTracked, setIsSurfaceTracked] = React.useState(false);
   const [isObjPlaced, setIsObjPlaced] = React.useState(false);
+
+  const search = location.search;
+  const admin = new URLSearchParams(search).get('dev-space');
 
   const initScene = (gl, session) => {
     scene = new THREE.Scene();
@@ -62,7 +66,7 @@ export function HomePage() {
     );
 
     // load our gltf model
-    var loader = new GLTFLoader();
+    const loader = new GLTFLoader();
     loader.load(
       Persian,
       gltf => {
@@ -82,15 +86,15 @@ export function HomePage() {
     // light.position.y = -1;
     scene.add(light);
 
-    var directionalLight = new THREE.DirectionalLight(0xffffff, 6);
+    const directionalLight = new THREE.DirectionalLight(0xffffff, 6);
     directionalLight.position.set(0, 1, 0);
     scene.add(directionalLight);
 
-    var directionalLight2 = new THREE.DirectionalLight(0xffffff, 6);
+    const directionalLight2 = new THREE.DirectionalLight(0xffffff, 6);
     directionalLight2.position.set(1, 0, 0);
     scene.add(directionalLight2);
 
-    var directionalLight3 = new THREE.DirectionalLight(0xffffff, 6);
+    const directionalLight3 = new THREE.DirectionalLight(0xffffff, 6);
     directionalLight3.position.set(0, 0, 1);
     scene.add(directionalLight3);
 
@@ -197,7 +201,7 @@ export function HomePage() {
 
     // create a canvas element and WebGL context for rendering
     session.addEventListener('end', onSessionEnded);
-    let canvas = document.createElement('canvas');
+    const canvas = document.createElement('canvas');
     gl = canvas.getContext('webgl', { xrCompatible: true });
     session.updateRenderState({ baseLayer: new XRWebGLLayer(session, gl) });
 
@@ -241,13 +245,14 @@ export function HomePage() {
       xrHitTestSource.cancel();
       xrHitTestSource = null;
       // we'll be placing our object right where the reticle was
-      var cameraPostion = new THREE.Vector3();
+      const cameraPostion = new THREE.Vector3();
       // var cameraDirection = new THREE.Vector3();
       // camera.getWorldPosition(cameraPostion);
       const pos = reticle.getWorldPosition(cameraPostion);
+      hitTestPosition = pos;
       scene.remove(reticle);
-      model.position.set(pos.x, pos.y - 6, pos.z);
-      //model.scale.set(2,2,2);
+      model.position.set(pos.x, pos.y - 4, pos.z);
+      // model.scale.set(2,2,2);
       scene.add(model);
       setIsObjPlaced(true);
 
@@ -266,11 +271,8 @@ export function HomePage() {
     }
   }
 
-  const hasParentWithMatchingSelector = (target, selector) => {
-    return [...document.querySelectorAll(selector)].some(el =>
-      el.contains(target),
-    );
-  };
+  const hasParentWithMatchingSelector = (target, selector) =>
+    [...document.querySelectorAll(selector)].some(el => el.contains(target));
 
   function toggleAnimation(event) {
     if (event)
@@ -278,12 +280,30 @@ export function HomePage() {
         const slide = document.getElementById('test-slider').lastChild
           .firstChild.value;
         model.scale.set(slide, slide, slide);
+      } else if (
+        hasParentWithMatchingSelector(event.target, '#test-slider-x')
+      ) {
+        const positionX = document.getElementById('test-slider-x').lastChild
+          .firstChild.value;
+        model.position.set(positionX, model.position.y, model.position.z);
+      } else if (
+        hasParentWithMatchingSelector(event.target, '#test-slider-y')
+      ) {
+        const positionY = document.getElementById('test-slider-y').lastChild
+          .firstChild.value;
+        model.position.set(model.position.x, positionY, model.position.z);
+      } else if (
+        hasParentWithMatchingSelector(event.target, '#test-slider-z')
+      ) {
+        const positionZ = document.getElementById('test-slider-z').lastChild
+          .firstChild.value;
+        model.position.set(model.position.x, model.position.y, positionZ);
       }
   }
 
   // Utility function to update animated objects
   function updateAnimation() {
-    let dt = (Date.now() - lastFrame) / 1000;
+    const dt = (Date.now() - lastFrame) / 1000;
     lastFrame = Date.now();
     if (mixer) {
       mixer.update(dt);
@@ -291,7 +311,7 @@ export function HomePage() {
   }
 
   function onXRFrame(t, frame) {
-    let session = frame.session;
+    const { session } = frame;
     session.requestAnimationFrame(onXRFrame);
     light.position.set(camera.position.x, camera.position.y, camera.position.z);
     if (xrHitTestSource) {
@@ -344,6 +364,46 @@ export function HomePage() {
               max={6}
               track={false}
             />
+            {admin && (
+              <span id="test-slider-xr">
+                <Slider
+                  size="small"
+                  defaultValue={0}
+                  aria-label="Small"
+                  valueLabelDisplay="auto"
+                  id="test-slider-x"
+                  orientation="vertical"
+                  step={1}
+                  min={-120}
+                  max={120}
+                  track={false}
+                />
+                <Slider
+                  size="small"
+                  defaultValue={0}
+                  aria-label="Small"
+                  valueLabelDisplay="auto"
+                  id="test-slider-y"
+                  orientation="vertical"
+                  step={1}
+                  min={-120}
+                  max={120}
+                  track={false}
+                />
+                <Slider
+                  size="small"
+                  defaultValue={0}
+                  aria-label="Small"
+                  valueLabelDisplay="auto"
+                  id="test-slider-z"
+                  orientation="vertical"
+                  step={1}
+                  min={-120}
+                  max={120}
+                  track={false}
+                />
+              </span>
+            )}
           </Stack>
         )}
       </div>
