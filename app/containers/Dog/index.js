@@ -12,10 +12,7 @@ import { FormattedMessage } from 'react-intl';
 import { connect } from 'react-redux';
 import { compose } from 'redux';
 import { createStructuredSelector } from 'reselect';
-import {
-  BsFillPlayCircleFill,
-  BsFillPauseCircleFill,
-} from 'react-icons/bs';
+import { BsFillPlayCircleFill, BsFillPauseCircleFill } from 'react-icons/bs';
 
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
@@ -72,7 +69,7 @@ export function HomePage() {
       Persian,
       gltf => {
         model = gltf.scene;
-        model.scale.set(1.8, 1.8, 1.8);
+        //model.scale.set(1.8, 1.8, 1.8);
         model.castShadow = true;
         model.receiveShadow = true;
         mixer = new THREE.AnimationMixer(model);
@@ -91,23 +88,59 @@ export function HomePage() {
       error => console.error(error),
     );
 
-    light = new THREE.PointLight(0xffffff, 0.8, 100); // soft white light
+    light = new THREE.PointLight(0xffffff, 0.6, 100); // soft white light
     light.position.set(camera.position.x, camera.position.y, camera.position.z);
+    light.castShadow = true;
+    //Set up shadow properties for the light
+    light.shadow.mapSize.width = 512; // default
+    light.shadow.mapSize.height = 512; // default
+    light.shadow.camera.near = 0.5; // default
+    light.shadow.camera.far = 500; // default
     // light.position.z = 1;
     // light.position.y = -1;
     scene.add(light);
 
-    var directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
+    var directionalLight = new THREE.DirectionalLight(0xffffff, 0.6);
     directionalLight.position.set(0, 1, 0);
     scene.add(directionalLight);
 
-    var directionalLight2 = new THREE.DirectionalLight(0xffffff, 0.8);
+    var directionalLight2 = new THREE.DirectionalLight(0xffffff, 0.5);
     directionalLight2.position.set(1, 0, 0);
     scene.add(directionalLight2);
 
-    var directionalLight3 = new THREE.DirectionalLight(0xffffff, 0.8);
+    var directionalLight3 = new THREE.DirectionalLight(0xffffff, 0.5);
     directionalLight3.position.set(0, 0, 1);
     scene.add(directionalLight3);
+
+    //  light = new THREE.DirectionalLight( 0xffffff, 1 );
+    // light.position.set( 0, 1, 0 ); //default; light shining from top
+    // light.castShadow = true; // default false
+    // scene.add( light );
+
+    // //Set up shadow properties for the light
+    // light.shadow.mapSize.width = 512; // default
+    // light.shadow.mapSize.height = 512; // default
+    // light.shadow.camera.near = 0.5; // default
+    // light.shadow.camera.far = 500; // default
+
+    // //Create a sphere that cast shadows (but does not receive them)
+    // const sphereGeometry = new THREE.SphereGeometry( 5, 32, 32 );
+    // const sphereMaterial = new THREE.MeshStandardMaterial( { color: 0xff0000 } );
+    // const sphere = new THREE.Mesh( sphereGeometry, sphereMaterial );
+    // sphere.castShadow = true; //default is false
+    // sphere.receiveShadow = false; //default
+    // scene.add( sphere );
+
+    // //Create a plane that receives shadows (but does not cast them)
+    // const planeGeometry = new THREE.PlaneGeometry( 20, 20, 32, 32 );
+    // const planeMaterial = new THREE.MeshStandardMaterial( { color: 0x00ff00 } )
+    // const plane = new THREE.Mesh( planeGeometry, planeMaterial );
+    // plane.receiveShadow = true;
+    // scene.add( plane );
+
+    // //Create a helper for the shadow camera (optional)
+    // const helper = new THREE.CameraHelper( light.shadow.camera );
+    // scene.add( helper );
 
     // create and configure three.js renderer with XR support
     renderer = new THREE.WebGLRenderer({
@@ -116,6 +149,8 @@ export function HomePage() {
       autoClear: true,
       context: gl,
     });
+    renderer.shadowMap.enabled = true;
+    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
     renderer.setPixelRatio(window.devicePixelRatio);
     renderer.setSize(window.innerWidth, window.innerHeight);
     renderer.xr.enabled = true;
@@ -279,9 +314,9 @@ export function HomePage() {
         .addEventListener('click', toggleAnimation);
       setIsMotion(true);
       document.getElementById('audio').loop = true;
-      setTimeout(() => {
-        document.getElementById('audio').play();
-      }, 3000);
+      // setTimeout(() => {
+      //   //document.getElementById('audio').play();
+      // }, 3000);
     }
   }
 
@@ -310,7 +345,7 @@ export function HomePage() {
   function onXRFrame(t, frame) {
     let session = frame.session;
     session.requestAnimationFrame(onXRFrame);
-    light.position.set(camera.position.x, camera.position.y, camera.position.z);
+    //light.position.set(camera.position.x, camera.position.y, camera.position.z);
     if (xrHitTestSource) {
       // obtain hit test results by casting a ray from the center of device screen
       // into AR view. Results indicate that ray intersected with one or more detected surfaces
@@ -362,12 +397,12 @@ export function HomePage() {
           (isMotion ? (
             <BsFillPauseCircleFill
               onClick={stopMotion}
-              className='play-pause-button'
+              className="play-pause-button"
             />
           ) : (
             <BsFillPlayCircleFill
               onClick={stopMotion}
-              className='play-pause-button'
+              className="play-pause-button"
             />
           ))}
       </div>
@@ -383,17 +418,17 @@ export function HomePage() {
         <meta name="description" content="Verse Labs Project Persian Cat AR" />
       </Helmet>
       <div>
-      <StartExperience
+        <StartExperience
           isWebXRStarted={isWebXRStarted}
           isXRSupportedText={isXRSupportedText}
           isSurfaceTracked={isSurfaceTracked}
           isObjPlaced={isObjPlaced}
           ARHtmlContent={ARHtmlContent}
         />
-          <ARHtmlContent />
-        </div>
+        <ARHtmlContent />
+      </div>
 
-        {/* <CenteredSection>
+      {/* <CenteredSection>
           <H2>
             <FormattedMessage {...messages.startProjectHeader} />
           </H2>
