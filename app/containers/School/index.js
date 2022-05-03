@@ -350,7 +350,7 @@ export function HomePage({ location }) {
   function ARHtmlContent() {
     return isWebXRStarted ? (
       <div className="ARContent">
-        {isObjPlaced && (
+        {isObjPlaced && admin && (
           <Stack sx={{ height: 200 }} spacing={1} direction="row">
             <Slider
               size="small"
@@ -364,46 +364,45 @@ export function HomePage({ location }) {
               max={6}
               track={false}
             />
-            {admin && (
-              <span id="test-slider-xr">
-                <Slider
-                  size="small"
-                  defaultValue={0}
-                  aria-label="Small"
-                  valueLabelDisplay="auto"
-                  id="test-slider-x"
-                  orientation="vertical"
-                  step={1}
-                  min={-120}
-                  max={120}
-                  track={false}
-                />
-                <Slider
-                  size="small"
-                  defaultValue={0}
-                  aria-label="Small"
-                  valueLabelDisplay="auto"
-                  id="test-slider-y"
-                  orientation="vertical"
-                  step={1}
-                  min={-120}
-                  max={120}
-                  track={false}
-                />
-                <Slider
-                  size="small"
-                  defaultValue={0}
-                  aria-label="Small"
-                  valueLabelDisplay="auto"
-                  id="test-slider-z"
-                  orientation="vertical"
-                  step={1}
-                  min={-120}
-                  max={120}
-                  track={false}
-                />
-              </span>
-            )}
+
+            <span id="test-slider-xr">
+              <Slider
+                size="small"
+                defaultValue={0}
+                aria-label="Small"
+                valueLabelDisplay="auto"
+                id="test-slider-x"
+                orientation="vertical"
+                step={1}
+                min={-120}
+                max={120}
+                track={false}
+              />
+              <Slider
+                size="small"
+                defaultValue={0}
+                aria-label="Small"
+                valueLabelDisplay="auto"
+                id="test-slider-y"
+                orientation="vertical"
+                step={1}
+                min={-120}
+                max={120}
+                track={false}
+              />
+              <Slider
+                size="small"
+                defaultValue={0}
+                aria-label="Small"
+                valueLabelDisplay="auto"
+                id="test-slider-z"
+                orientation="vertical"
+                step={1}
+                min={-120}
+                max={120}
+                track={false}
+              />
+            </span>
           </Stack>
         )}
       </div>

@@ -17,6 +17,8 @@ import { compose } from 'redux';
 import { createStructuredSelector } from 'reselect';
 
 import StartExperience from 'components/StartExperience';
+import { SliderComp } from './componentUtils';
+import { handelOverlayClick, loadAllModel } from './utils';
 
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
@@ -30,7 +32,7 @@ import { loadRepos } from '../App/actions';
 
 import './index.css';
 
-export function HomePage() {
+export function HomePage({ location }) {
   let renderer = null;
   let scene = null;
   let camera = null;
@@ -59,6 +61,9 @@ export function HomePage() {
   const [isObjPlaced, setIsObjPlaced] = React.useState(false);
   const [modelAdded, setModelAdded] = React.useState([]);
 
+  const search = location.search;
+  const admin = new URLSearchParams(search).get('dev-space');
+
   const initScene = (gl, session) => {
     scene = new THREE.Scene();
     camera = new THREE.PerspectiveCamera(
@@ -70,7 +75,6 @@ export function HomePage() {
 
     // load our gltf model
     var loader = new GLTFLoader();
-    //setModelAdded('dddffdfds')
     loader.load(
       Chevy_truck,
       gltf => {
@@ -80,46 +84,19 @@ export function HomePage() {
         model.receiveShadow = true;
         currentModel = model;
         setModelAdded([...modelAdded, 'chevy_truck']);
-        loadAllModel();
         mixer = new THREE.AnimationMixer(model);
       },
       () => {},
       error => console.error(error),
     );
 
-    const loadAllModel = () => {
-      carsConstant.forEach(async car => {
-        var loader = new GLTFLoader();
-        loader.load(
-          car.path,
-          gltf => {
-            console.log(car);
-            if (car.name === 'Mercedes') {
-              window.mercedes = gltf.scene;
-              mercedes = gltf.scene;
-              mercedes.castShadow = true;
-              mercedes.receiveShadow = true;
-            } else if (car.name === 'Truck') {
-              truck = gltf.scene;
-              truck.castShadow = true;
-              truck.receiveShadow = true;
-            } else if (car.name === 'Jaguar') {
-              jaguar = gltf.scene;
-              jaguar.castShadow = true;
-              jaguar.receiveShadow = true;
-            } else if (car.name === 'Wheel') {
-              wheel = gltf.scene;
-              //wheel.scale.set(1.8, 1.8, 1.8);
-              wheel.castShadow = true;
-              wheel.receiveShadow = true;
-            }
-          },
-          () => {},
-          error => console.error(error),
-        );
-        setModelAdded(['Chevy_truck', 'Mercedes', 'Truck', 'Jaguar', 'Wheel']);
-      });
-    };
+    loadAllModel(carsConstant, wheel, truck, mercedes, jaguar).then(res => {
+      mercedes = res.mercedes;
+      truck = res.truck;
+      wheel = res.wheel;
+      jaguar = res.jaguar;
+      setModelAdded(['Chevy_truck', 'Mercedes', 'Truck', 'Jaguar', 'Wheel']);
+    });
 
     light = new THREE.PointLight(0xffffff, 0.8, 100); // soft white light
     light.position.set(camera.position.x, camera.position.y, camera.position.z);
@@ -288,12 +265,6 @@ export function HomePage() {
     setIsObjPlaced(false);
   }
 
-  const hasParentWithMatchingSelector = (target, selector) => {
-    return [...document.querySelectorAll(selector)].some(el =>
-      el.contains(target),
-    );
-  };
-
   function placeObject() {
     if (reticle.visible && model) {
       reticle.visible = false;
@@ -312,45 +283,19 @@ export function HomePage() {
 
       // start object animation right away
       // instead of placing an object we will just toggle animation state
-      document
-        .getElementById('overlay')
-        .removeEventListener('click', placeObject);
-      document
-        .getElementById('overlay')
-        .addEventListener('click', handelOverlayClick);
-    }
-  }
-
-  function handelOverlayClick(event) {
-    console.log(modelAdded);
-
-    if (hasParentWithMatchingSelector(event.target, '.dropdown')) {
-      console.log(hasParentWithMatchingSelector(event.target, '.Wheel'));
-      if (hasParentWithMatchingSelector(event.target, '.Wheel')) {
-        scene.remove(currentModel);
-        scene.add(wheel);
-        currentModel = wheel;
-      }
-      if (hasParentWithMatchingSelector(event.target, '.Truck')) {
-        scene.remove(currentModel);
-        scene.add(truck);
-        currentModel = truck;
-      }
-      if (hasParentWithMatchingSelector(event.target, '.Mercedes')) {
-        scene.remove(currentModel);
-        scene.add(mercedes);
-        currentModel = mercedes;
-      }
-      if (hasParentWithMatchingSelector(event.target, '.Jaguar')) {
-        scene.remove(currentModel);
-        scene.add(jaguar);
-        currentModel = jaguar;
-      }
-      if (hasParentWithMatchingSelector(event.target, '.Chevy_truck')) {
-        scene.remove(currentModel);
-        scene.add(model);
-        currentModel = model;
-      }
+      const overlayDom = document.getElementById('overlay');
+      overlayDom.removeEventListener('click', placeObject);
+      overlayDom.addEventListener('click', handelOverlayClick);
+      overlayDom.addEventListener('touchmove', handelOverlayClick);
+      overlayDom.myParams = {
+        scene,
+        model,
+        currentModel,
+        wheel,
+        truck,
+        mercedes,
+        jaguar,
+      };
     }
   }
 
@@ -421,6 +366,7 @@ export function HomePage() {
             </button>
           </div>
         )}
+        <SliderComp isObjPlaced={isObjPlaced} admin={admin} />
       </div>
     ) : (
       ''
