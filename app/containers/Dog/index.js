@@ -47,6 +47,62 @@ export function HomePage() {
   let action = null;
   let reticle = null;
   let lastFrame = Date.now();
+  var spot_light;
+
+
+
+const MOVE_UP = 1;
+const MOVE_DOWN = 0;
+
+// Scene properties
+var scene_color = 0x000000;
+var scene_color_alpha = 1;
+
+// Camera Properties
+var camera_angle = 0;
+var camera_range = -12;
+var camera_speed = 0.05 * Math.PI/180;
+var camera_target = new THREE.Vector3(0, 0, -5);
+var camera_focal = 70;
+var camera_near = 0.1;
+var camera_far = 50;
+
+// Lights
+var light_am_color = 0xAAAAAA;
+var light_spot_color = 0xDDDDDD;
+var light_spot_intensity = 0.7;
+var light_spot_position = {x: 5, y: 5, z: 20,}
+var light_spot_camera_near = 0.5;
+var light_spot_shadow_darkness = 0.35;
+
+// Sphere properties
+var sphere_upper = 0;
+var sphere_lower = -4.0;
+var sphere_direction = MOVE_DOWN;
+var sphere_move = 0.02;
+var sphere_rotation_speed = 0.05;
+var sphere_size = 0.3;
+var sphere_width_seg = 12;
+var sphere_height_seg = 8;
+var sphere_color = 0xff0000;
+var sphere_position = {x: 1, y: 1, z: -9};
+
+// Plane Properties
+var plane_width = 10;
+var plane_height = 10;
+var plane_width_segs = 1;
+var plane_height_segs = 1;
+var plane_color = 0xFFFFFF;
+var plane_position = {x: 0, y: -6, z: -9};
+
+// Box properties
+var box_width = 0.5;
+var box_height = 0.5;
+var box_depth = 1;
+var box_rotation_speed = 0.01;
+var box_color = 0x005500;
+var box_position = {x: -1, y: -1, z: -4};
+
 
   const [isXRSupportedText, setIsXRSupportedText] = React.useState('');
   const [isWebXRStarted, setIsWebXRStarted] = React.useState(false);
@@ -62,6 +118,10 @@ export function HomePage() {
       0.1,
       1000,
     );
+
+//camera.position.set(0, camera_range, 0);
+//camera.useQuaternion = true;
+//camera.lookAt(camera_target);
 
     // load our gltf model
     var loader = new GLTFLoader();
@@ -88,59 +148,50 @@ export function HomePage() {
       error => console.error(error),
     );
 
-    light = new THREE.PointLight(0xffffff, 0.6, 100); // soft white light
-    light.position.set(camera.position.x, camera.position.y, camera.position.z);
-    light.castShadow = true;
-    //Set up shadow properties for the light
-    light.shadow.mapSize.width = 512; // default
-    light.shadow.mapSize.height = 512; // default
-    light.shadow.camera.near = 0.5; // default
-    light.shadow.camera.far = 500; // default
-    // light.position.z = 1;
-    // light.position.y = -1;
-    scene.add(light);
+// Add abbient light
+var am_light = new THREE.AmbientLight(light_am_color); 
+// soft white light
+scene.add(am_light);
 
-    var directionalLight = new THREE.DirectionalLight(0xffffff, 0.6);
-    directionalLight.position.set(0, 1, 0);
-    scene.add(directionalLight);
+// Add directional light
+ spot_light = new THREE.SpotLight(light_spot_color, light_spot_intensity);
+//spot_light.position.set(light_spot_position.x, light_spot_position.y + 22, light_spot_position.z + 5);
+spot_light.position.set(sphere_position.x, sphere_position.y + 4, sphere_position.z);
+spot_light.target = scene;
+spot_light.castShadow = true;
+spot_light.receiveShadow = true;
+//spot_light.shadowDarkness = light_spot_shadow_darkness;
+spot_light.shadow.camera.near	= light_spot_camera_near;		
+scene.add(spot_light);
 
-    var directionalLight2 = new THREE.DirectionalLight(0xffffff, 0.5);
-    directionalLight2.position.set(1, 0, 0);
-    scene.add(directionalLight2);
+// Add the ground plane
+// var plane_geometry = new THREE.PlaneGeometry(plane_width, plane_height, plane_width_segs, plane_height_segs).rotateX(-Math.PI / 2);
+// var plane_material = new THREE.MeshLambertMaterial({color: plane_color});
+// //plane_material.opacity = 0.4;
+// plane_material.transparent = true;
+// var plane_mesh = new THREE.Mesh(plane_geometry, plane_material);
+// plane_mesh.position.set(plane_position.x, plane_position.y, plane_position.z);
+// plane_mesh.receiveShadow = true;
+// scene.add(plane_mesh);
 
-    var directionalLight3 = new THREE.DirectionalLight(0xffffff, 0.5);
-    directionalLight3.position.set(0, 0, 1);
-    scene.add(directionalLight3);
+// // Add the box
+// var box_geometry = new THREE.BoxGeometry(box_width, box_height, box_depth);
+// var box_material = new THREE.MeshLambertMaterial({color: box_color});
+// var box_mesh = new THREE.Mesh(box_geometry, box_material);
+// box_mesh.castShadow = true;
+// box_mesh.receiveShadow = true;
+// box_mesh.position.set(box_position.x, box_position.y, box_position.z);
+// scene.add(box_mesh);
 
-    //  light = new THREE.DirectionalLight( 0xffffff, 1 );
-    // light.position.set( 0, 1, 0 ); //default; light shining from top
-    // light.castShadow = true; // default false
-    // scene.add( light );
+// Add the sphere
+// var sphere_geometry = new THREE.SphereGeometry(sphere_size, sphere_width_seg, sphere_height_seg);
+// var sphere_material = new THREE.MeshPhongMaterial({color: sphere_color});
+// var sphere_mesh = new THREE.Mesh(sphere_geometry, sphere_material);
+// sphere_mesh.castShadow = true;
+// sphere_mesh.receiveShadow = true;
+// sphere_mesh.position.set(sphere_position.x, sphere_position.y, sphere_position.z);
+// scene.add(sphere_mesh);
 
-    // //Set up shadow properties for the light
-    // light.shadow.mapSize.width = 512; // default
-    // light.shadow.mapSize.height = 512; // default
-    // light.shadow.camera.near = 0.5; // default
-    // light.shadow.camera.far = 500; // default
-
-    // //Create a sphere that cast shadows (but does not receive them)
-    // const sphereGeometry = new THREE.SphereGeometry( 5, 32, 32 );
-    // const sphereMaterial = new THREE.MeshStandardMaterial( { color: 0xff0000 } );
-    // const sphere = new THREE.Mesh( sphereGeometry, sphereMaterial );
-    // sphere.castShadow = true; //default is false
-    // sphere.receiveShadow = false; //default
-    // scene.add( sphere );
-
-    // //Create a plane that receives shadows (but does not cast them)
-    // const planeGeometry = new THREE.PlaneGeometry( 20, 20, 32, 32 );
-    // const planeMaterial = new THREE.MeshStandardMaterial( { color: 0x00ff00 } )
-    // const plane = new THREE.Mesh( planeGeometry, planeMaterial );
-    // plane.receiveShadow = true;
-    // scene.add( plane );
-
-    // //Create a helper for the shadow camera (optional)
-    // const helper = new THREE.CameraHelper( light.shadow.camera );
-    // scene.add( helper );
 
     // create and configure three.js renderer with XR support
     renderer = new THREE.WebGLRenderer({
@@ -150,6 +201,7 @@ export function HomePage() {
       context: gl,
     });
     renderer.shadowMap.enabled = true;
+    //renderer.setClearColor(scene_color, scene_color_alpha);
     renderer.shadowMap.type = THREE.PCFSoftShadowMap;
     renderer.setPixelRatio(window.devicePixelRatio);
     renderer.setSize(window.innerWidth, window.innerHeight);
@@ -281,7 +333,7 @@ export function HomePage() {
     xrSession = null;
     xrButton.innerHTML = 'Start Experience';
     //info.innerHTML = '';
-    document.getElementById('audio').pause();
+    //document.getElementById('audio').pause();
     gl = null;
     if (xrHitTestSource) xrHitTestSource.cancel();
     xrHitTestSource = null;
@@ -299,7 +351,6 @@ export function HomePage() {
       const pos = reticle.getWorldPosition(cameraPostion);
       scene.remove(reticle);
       model.position.set(pos.x, pos.y, pos.z);
-      //model.scale.set(2,2,2);
       scene.add(model);
       setIsObjPlaced(true);
 
@@ -313,7 +364,7 @@ export function HomePage() {
         .getElementById('overlay')
         .addEventListener('click', toggleAnimation);
       setIsMotion(true);
-      document.getElementById('audio').loop = true;
+      //document.getElementById('audio').loop = true;
       // setTimeout(() => {
       //   //document.getElementById('audio').play();
       // }, 3000);
@@ -377,14 +428,14 @@ export function HomePage() {
   }
 
   function stopMotion() {
-    let audioCon = document.getElementById('audio');
-    if (isMotion) {
-      audioCon.pause();
-    } else {
-      audioCon.play();
-    }
-    //toggleAnimation();
-    setIsMotion(!isMotion);
+    //let audioCon = document.getElementById('audio');
+    // if (isMotion) {
+    //   audioCon.pause();
+    // } else {
+    //   audioCon.play();
+    // }
+    // //toggleAnimation();
+    // setIsMotion(!isMotion);
   }
 
   useInjectReducer({ key, reducer });
@@ -393,7 +444,7 @@ export function HomePage() {
   function ARHtmlContent() {
     return isWebXRStarted ? (
       <div className="ARContent">
-        {isObjPlaced &&
+        {false &&
           (isMotion ? (
             <BsFillPauseCircleFill
               onClick={stopMotion}

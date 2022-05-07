@@ -71,7 +71,7 @@ export function HomePage({ location }) {
       Persian,
       gltf => {
         model = gltf.scene;
-        model.scale.set(1.4, 1.4, 1.4);
+        //model.scale.set(1.4, 1.4, 1.4);
         model.castShadow = true;
         model.receiveShadow = true;
         mixer = new THREE.AnimationMixer(model);
