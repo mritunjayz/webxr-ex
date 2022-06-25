@@ -4,57 +4,51 @@ function handelOverlayClick(event) {
   const {
     scene,
     model,
-    currentModel,
     wheel,
     truck,
     mercedes,
     jaguar,
   } = event.currentTarget.myParams;
-  let currentCar = currentModel;
+  let currentCar = scene.children[scene.children.length - 1];
   if (event)
     if (hasParentWithMatchingSelector(event.target, '.dropdown')) {
       console.log(hasParentWithMatchingSelector(event.target, '.Wheel'));
       if (hasParentWithMatchingSelector(event.target, '.Wheel')) {
         scene.remove(currentCar);
         scene.add(wheel);
-        currentCar = wheel;
       }
       if (hasParentWithMatchingSelector(event.target, '.Truck')) {
         scene.remove(currentCar);
         scene.add(truck);
-        currentCar = truck;
       }
       if (hasParentWithMatchingSelector(event.target, '.Mercedes')) {
         scene.remove(currentCar);
         scene.add(mercedes);
-        currentCar = mercedes;
       }
       if (hasParentWithMatchingSelector(event.target, '.Jaguar')) {
         scene.remove(currentCar);
         scene.add(jaguar);
-        currentCar = jaguar;
       }
       if (hasParentWithMatchingSelector(event.target, '.Chevy_truck')) {
         scene.remove(currentCar);
         scene.add(model);
-        currentCar = model;
       }
     } else if (hasParentWithMatchingSelector(event.target, '#test-slider')) {
       const slide = document.getElementById('test-slider').lastChild.firstChild
         .value;
-      currentModel.scale.set(slide, slide, slide);
+      currentCar.scale.set(slide, slide, slide);
     } else if (hasParentWithMatchingSelector(event.target, '#test-slider-x')) {
       const positionX = document.getElementById('test-slider-x').lastChild
         .firstChild.value;
-      currentModel.position.set(positionX, model.position.y, model.position.z);
+      currentCar.position.set(positionX, model.position.y, model.position.z);
     } else if (hasParentWithMatchingSelector(event.target, '#test-slider-y')) {
       const positionY = document.getElementById('test-slider-y').lastChild
         .firstChild.value;
-      currentModel.position.set(model.position.x, positionY, model.position.z);
+      currentCar.position.set(model.position.x, positionY, model.position.z);
     } else if (hasParentWithMatchingSelector(event.target, '#test-slider-z')) {
       const positionZ = document.getElementById('test-slider-z').lastChild
         .firstChild.value;
-      currentModel.position.set(model.position.x, model.position.y, positionZ);
+      currentCar.position.set(model.position.x, model.position.y, positionZ);
     }
 }
 

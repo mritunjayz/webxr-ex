@@ -41,7 +41,6 @@ export function HomePage({ location }) {
   let truck = null;
   let jaguar = null;
   let wheel = null;
-  let currentModel = null;
 
   const carsConstant = [
     { path: Chevy_truck, name: 'Chevy_truck' },
@@ -79,7 +78,6 @@ export function HomePage({ location }) {
         model.castShadow = true;
         model.receiveShadow = true;
         currentModel = model;
-        setModelAdded([...modelAdded, 'chevy_truck']);
         mixer = new THREE.AnimationMixer(model);
       },
       () => {},
@@ -286,7 +284,6 @@ export function HomePage({ location }) {
       overlayDom.myParams = {
         scene,
         model,
-        currentModel,
         wheel,
         truck,
         mercedes,
