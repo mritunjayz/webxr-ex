@@ -12,6 +12,7 @@ import styled from 'styled-components';
 import { Switch, Route } from 'react-router-dom';
 
 import PersianCat from 'containers/PersianCat/Loadable';
+import Sphere from 'containers/Sphere/Loadable';
 import TokyoCity from 'containers/TokyoCity/Loadable';
 import School from 'containers/School/Loadable';
 import Cars from 'containers/Cars/Loadable';
@@ -46,6 +47,7 @@ export default function App() {
       <Switch>
         <Route exact path="/" component={HomePage} />
         <Route exact path="/cat" component={PersianCat} />
+        <Route exact path="/sphere" component={Sphere} />
         <Route exact path="/cars" component={Cars} />
         <Route exact path="/dog" component={Dog} />
         <Route exact path="/city" component={TokyoCity} />
