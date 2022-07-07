@@ -4,8 +4,7 @@
  * This is the first thing users see of our App, at the '/' route
  */
 
-import React, { useEffect, memo } from 'react';
-const Persian = require('./Beagle.glb');
+import React, { memo } from 'react';
 import PropTypes from 'prop-types';
 import { Helmet } from 'react-helmet';
 import { FormattedMessage } from 'react-intl';
@@ -35,74 +34,32 @@ import saga from './saga';
 
 import './index.css';
 
+
+const Persian = require('./Beagle.glb');
+const shadowPic = require('./shadow.png');
 const key = 'home';
 
 export function HomePage() {
   let renderer = null;
   let scene = null;
   let camera = null;
-  let light = null;
   let model = null;
   let mixer = null;
   let action = null;
   let reticle = null;
   let lastFrame = Date.now();
-  var spot_light;
+  let spot_light;
 
-
-
-const MOVE_UP = 1;
-const MOVE_DOWN = 0;
-
-// Scene properties
-var scene_color = 0x000000;
-var scene_color_alpha = 1;
-
-// Camera Properties
-var camera_angle = 0;
-var camera_range = -12;
-var camera_speed = 0.05 * Math.PI/180;
-var camera_target = new THREE.Vector3(0, 0, -5);
-var camera_focal = 70;
-var camera_near = 0.1;
-var camera_far = 50;
+  const base = new THREE.Object3D();
+  let shadowMesh;
 
 // Lights
-var light_am_color = 0xAAAAAA;
-var light_spot_color = 0xDDDDDD;
-var light_spot_intensity = 0.7;
-var light_spot_position = {x: 5, y: 5, z: 20,}
-var light_spot_camera_near = 0.5;
-var light_spot_shadow_darkness = 0.35;
+let light_am_color = 0xAAAAAA;
+let light_spot_color = 0xDDDDDD;
+let light_spot_intensity = 0.7;
+let light_spot_camera_near = 0.5;
 
-// Sphere properties
-var sphere_upper = 0;
-var sphere_lower = -4.0;
-var sphere_direction = MOVE_DOWN;
-var sphere_move = 0.02;
-var sphere_rotation_speed = 0.05;
-var sphere_size = 0.3;
-var sphere_width_seg = 12;
-var sphere_height_seg = 8;
-var sphere_color = 0xff0000;
-var sphere_position = {x: 1, y: 1, z: -9};
-
-// Plane Properties
-var plane_width = 10;
-var plane_height = 10;
-var plane_width_segs = 1;
-var plane_height_segs = 1;
-var plane_color = 0xFFFFFF;
-var plane_position = {x: 0, y: -6, z: -9};
-
-// Box properties
-var box_width = 0.5;
-var box_height = 0.5;
-var box_depth = 1;
-var box_rotation_speed = 0.01;
-var box_color = 0x005500;
-var box_position = {x: -1, y: -1, z: -4};
-
+let sphere_position = {x: 1, y: 1, z: -9};
 
   const [isXRSupportedText, setIsXRSupportedText] = React.useState('');
   const [isWebXRStarted, setIsWebXRStarted] = React.useState(false);
@@ -119,9 +76,8 @@ var box_position = {x: -1, y: -1, z: -4};
       1000,
     );
 
-//camera.position.set(0, camera_range, 0);
-//camera.useQuaternion = true;
-//camera.lookAt(camera_target);
+const textureLoader = new THREE.TextureLoader();
+const shadowTexture = textureLoader.load(shadowPic);
 
     // load our gltf model
     var loader = new GLTFLoader();
@@ -132,17 +88,34 @@ var box_position = {x: -1, y: -1, z: -4};
         //model.scale.set(1.8, 1.8, 1.8);
         model.castShadow = true;
         model.receiveShadow = true;
-        mixer = new THREE.AnimationMixer(model);
+        model.visible = false;
+        scene.add(base);
 
+        // add shadow to base
+        const sphereRadius = 0.5;
+        const planeSize = 2;
+        const shadowGeo = new THREE.PlaneBufferGeometry(planeSize, planeSize);
+        const shadowMat = new THREE.MeshBasicMaterial({
+          map: shadowTexture,
+          transparent: true,    // so we can see the ground
+          depthWrite: false,    // so we don't have to sort
+        });
+        shadowMesh = new THREE.Mesh(shadowGeo, shadowMat);
+        shadowMesh.position.y = -1;  // so we're above the ground slightly
+        shadowMesh.rotation.x = Math.PI * -.5;
+        const shadowSize = sphereRadius * 3;
+        shadowMesh.scale.set(shadowSize, shadowSize, shadowSize);
+        shadowMesh.visible = false;
+        base.add(shadowMesh);
+        base.add(model)
+
+
+        mixer = new THREE.AnimationMixer(model);
         action = mixer.clipAction(gltf.animations[0]);
         // let walkAction = mixer.clipAction( gltf.animations[ 1 ] );
-        // let runAction = mixer.clipAction( gltf.animations[ 2 ] );
-
         //action = [ idleAction/*, walkAction, runAction*/ ];
-        action.setLoop(THREE.LoopRepeat, 5);
+        action.setLoop(THREE.LoopRepeat, 15);
         // action[1].setLoop(THREE.LoopRepeat,2);
-        // action[2].setLoop(THREE.LoopRepeat,2);
-        // action[3].setLoop(THREE.LoopRepeat,2);
       },
       () => {},
       error => console.error(error),
@@ -163,34 +136,6 @@ spot_light.receiveShadow = true;
 //spot_light.shadowDarkness = light_spot_shadow_darkness;
 spot_light.shadow.camera.near	= light_spot_camera_near;		
 scene.add(spot_light);
-
-// Add the ground plane
-// var plane_geometry = new THREE.PlaneGeometry(plane_width, plane_height, plane_width_segs, plane_height_segs).rotateX(-Math.PI / 2);
-// var plane_material = new THREE.MeshLambertMaterial({color: plane_color});
-// //plane_material.opacity = 0.4;
-// plane_material.transparent = true;
-// var plane_mesh = new THREE.Mesh(plane_geometry, plane_material);
-// plane_mesh.position.set(plane_position.x, plane_position.y, plane_position.z);
-// plane_mesh.receiveShadow = true;
-// scene.add(plane_mesh);
-
-// // Add the box
-// var box_geometry = new THREE.BoxGeometry(box_width, box_height, box_depth);
-// var box_material = new THREE.MeshLambertMaterial({color: box_color});
-// var box_mesh = new THREE.Mesh(box_geometry, box_material);
-// box_mesh.castShadow = true;
-// box_mesh.receiveShadow = true;
-// box_mesh.position.set(box_position.x, box_position.y, box_position.z);
-// scene.add(box_mesh);
-
-// Add the sphere
-// var sphere_geometry = new THREE.SphereGeometry(sphere_size, sphere_width_seg, sphere_height_seg);
-// var sphere_material = new THREE.MeshPhongMaterial({color: sphere_color});
-// var sphere_mesh = new THREE.Mesh(sphere_geometry, sphere_material);
-// sphere_mesh.castShadow = true;
-// sphere_mesh.receiveShadow = true;
-// sphere_mesh.position.set(sphere_position.x, sphere_position.y, sphere_position.z);
-// scene.add(sphere_mesh);
 
 
     // create and configure three.js renderer with XR support
@@ -350,6 +295,9 @@ scene.add(spot_light);
       // camera.getWorldPosition(cameraPostion);
       const pos = reticle.getWorldPosition(cameraPostion);
       scene.remove(reticle);
+      model.visible = true;
+      shadowMesh.visible = true;
+      shadowMesh.position.set(pos.x - 0.2, pos.y- 0.5, pos.z - 0.6);
       model.position.set(pos.x, pos.y, pos.z);
       scene.add(model);
       setIsObjPlaced(true);
