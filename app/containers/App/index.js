@@ -17,6 +17,7 @@ import TokyoCity from 'containers/TokyoCity/Loadable';
 import School from 'containers/School/Loadable';
 import Cars from 'containers/Cars/Loadable';
 import Dog from 'containers/Dog/Loadable';
+import Tower from 'containers/Tower/Loadable';
 import HomePage from 'containers/HomePage/Loadable';
 import FeaturePage from 'containers/FeaturePage/Loadable';
 import NotFoundPage from 'containers/NotFoundPage/Loadable';
@@ -50,6 +51,7 @@ export default function App() {
         <Route exact path="/sphere" component={Sphere} />
         <Route exact path="/cars" component={Cars} />
         <Route exact path="/dog" component={Dog} />
+        <Route exact path="/tower" component={Dog} />
         <Route exact path="/city" component={TokyoCity} />
         <Route exact path="/school" component={School} />
         <Route path="/features" component={FeaturePage} />
