@@ -51,7 +51,7 @@ export default function App() {
         <Route exact path="/sphere" component={Sphere} />
         <Route exact path="/cars" component={Cars} />
         <Route exact path="/dog" component={Dog} />
-        <Route exact path="/tower" component={Dog} />
+        <Route exact path="/tower" component={Tower} />
         <Route exact path="/city" component={TokyoCity} />
         <Route exact path="/school" component={School} />
         <Route path="/features" component={FeaturePage} />
