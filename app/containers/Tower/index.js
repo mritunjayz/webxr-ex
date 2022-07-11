@@ -1,9 +1,3 @@
-/*
- * HomePage
- *
- * This is the first thing users see of our App, at the '/' route
- */
-
 import React, { memo } from 'react';
 import PropTypes from 'prop-types';
 import { Helmet } from 'react-helmet';
@@ -14,9 +8,6 @@ import { createStructuredSelector } from 'reselect';
 import { BsFillPlayCircleFill, BsFillPauseCircleFill } from 'react-icons/bs';
 
 import * as THREE from 'three';
-// import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
-// import { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader.js';
-// import { KTX2Loader } from 'three/examples/jsm/loaders/KTX2Loader.js';
 
 import { REVISION } from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
@@ -42,7 +33,6 @@ import saga from './saga';
 
 import './index.css';
 
-
 const Persian = require('./tower.glb');
 const shadowPic = require('./shadow.png');
 const key = 'home';
@@ -57,17 +47,15 @@ export function HomePage() {
   let reticle = null;
   let lastFrame = Date.now();
   let spot_light;
-
-  const base = new THREE.Object3D();
   let shadowMesh;
 
-// Lights
-let light_am_color = 0xAAAAAA;
-let light_spot_color = 0xDDDDDD;
-let light_spot_intensity = 0.7;
-let light_spot_camera_near = 0.5;
+  // Lights
+  let light_am_color = 0xaaaaaa;
+  let light_spot_color = 0xdddddd;
+  let light_spot_intensity = 0.7;
+  let light_spot_camera_near = 0.5;
 
-let sphere_position = {x: 1, y: 1, z: -9};
+  let sphere_position = { x: 1, y: 1, z: -9 };
 
   const [isXRSupportedText, setIsXRSupportedText] = React.useState('');
   const [isWebXRStarted, setIsWebXRStarted] = React.useState(false);
@@ -84,111 +72,87 @@ let sphere_position = {x: 1, y: 1, z: -9};
       1000,
     );
 
-const textureLoader = new THREE.TextureLoader();
-const shadowTexture = textureLoader.load(shadowPic);
+    const textureLoader = new THREE.TextureLoader();
+    const shadowTexture = textureLoader.load(shadowPic);
 
     // load our gltf model
-
-    // const dracoLoader = new DRACOLoader();
-    // const ktx2Loader = new KTX2Loader();
-    // ktx2Loader.setTranscoderPath( '../../../node_modules/three/examples/js/libs/basis/' );
-		// dracoLoader.setDecoderConfig({ type: 'js' });
-    // dracoLoader.setDecoderPath('../../../node_modules/three/examples/js/libs/draco/');
-    //   var loader = new GLTFLoader();
-
-		// 	loader.setDRACOLoader( dracoLoader );
-    //   loader.setKTX2Loader( ktx2Loader)
-
-        // create and configure three.js renderer with XR support
-        renderer = new THREE.WebGLRenderer({
-          antialias: true,
-          alpha: true,
-          autoClear: true,
-          context: gl,
-        });
-        renderer.shadowMap.enabled = true;
-        //renderer.setClearColor(scene_color, scene_color_alpha);
-        renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-        renderer.setPixelRatio(window.devicePixelRatio);
-        renderer.setSize(window.innerWidth, window.innerHeight);
-        renderer.xr.enabled = true;
-        renderer.xr.setReferenceSpaceType('local');
-        renderer.xr.setSession(session);
+    // create and configure three.js renderer with XR support
+    renderer = new THREE.WebGLRenderer({
+      antialias: true,
+      alpha: true,
+      autoClear: true,
+      context: gl,
+    });
+    renderer.shadowMap.enabled = true;
+    //renderer.setClearColor(scene_color, scene_color_alpha);
+    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    renderer.setPixelRatio(window.devicePixelRatio);
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.xr.enabled = true;
+    renderer.xr.setReferenceSpaceType('local');
+    renderer.xr.setSession(session);
 
     const THREE_PATH = `https://unpkg.com/three@0.${REVISION}.x`;
 
     const manager = new THREE.LoadingManager();
-    
-    const dracoLoader = new DRACOLoader( manager )
-      .setDecoderPath( `${THREE_PATH}/examples/js/libs/draco/gltf/` );
-    
-    const ktx2Loader = new KTX2Loader( manager )
-      .setTranscoderPath( `${THREE_PATH}/examples/js/libs/basis/` )
-      .detectSupport( renderer );
-    
-    const loader = new GLTFLoader( manager )
-            .setCrossOrigin( 'anonymous' )
-            .setDRACOLoader( dracoLoader )
-            .setKTX2Loader( ktx2Loader )
-            .setMeshoptDecoder( MeshoptDecoder );
+
+    const dracoLoader = new DRACOLoader(manager).setDecoderPath(
+      `${THREE_PATH}/examples/js/libs/draco/gltf/`,
+    );
+
+    const ktx2Loader = new KTX2Loader(manager)
+      .setTranscoderPath(`${THREE_PATH}/examples/js/libs/basis/`)
+      .detectSupport(renderer);
+
+    const loader = new GLTFLoader(manager)
+      .setCrossOrigin('anonymous')
+      .setDRACOLoader(dracoLoader)
+      .setKTX2Loader(ktx2Loader)
+      .setMeshoptDecoder(MeshoptDecoder);
 
     loader.load(
       Persian,
       gltf => {
         model = gltf.scene;
-        //model.scale.set(1.8, 1.8, 1.8);
-        model.castShadow = true;
-        model.receiveShadow = true;
         model.visible = false;
-        scene.add(base);
 
         // add shadow to base
         const sphereRadius = 0.5;
-        const planeSize = 1;
+        const planeSize = 1.5;
         const shadowGeo = new THREE.PlaneBufferGeometry(planeSize, planeSize);
         const shadowMat = new THREE.MeshBasicMaterial({
           map: shadowTexture,
-          transparent: true,    // so we can see the ground
-          depthWrite: false,    // so we don't have to sort
+          transparent: true, // so we can see the ground
+          depthWrite: false, // so we don't have to sort
         });
         shadowMesh = new THREE.Mesh(shadowGeo, shadowMat);
-        shadowMesh.position.y = -1;  // so we're above the ground slightly
-        shadowMesh.rotation.x = Math.PI * -.5;
+        shadowMesh.position.y = -1; // so we're above the ground slightly
+        shadowMesh.rotation.x = Math.PI * -0.5;
         const shadowSize = sphereRadius * 3;
         shadowMesh.scale.set(shadowSize, shadowSize, shadowSize);
         shadowMesh.visible = false;
-        base.add(shadowMesh);
-        base.add(model)
-
-
-        mixer = new THREE.AnimationMixer(model);
-        action = mixer.clipAction(gltf.animations[0]);
-        // let walkAction = mixer.clipAction( gltf.animations[ 1 ] );
-        //action = [ idleAction/*, walkAction, runAction*/ ];
-        action.setLoop(THREE.LoopRepeat, 15);
-        // action[1].setLoop(THREE.LoopRepeat,2);
+        scene.add(shadowMesh);
       },
       () => {},
       error => console.error(error),
     );
 
-// Add abbient light
-var am_light = new THREE.AmbientLight(light_am_color); 
-// soft white light
-scene.add(am_light);
-
-// Add directional light
- spot_light = new THREE.SpotLight(light_spot_color, light_spot_intensity);
-//spot_light.position.set(light_spot_position.x, light_spot_position.y + 22, light_spot_position.z + 5);
-spot_light.position.set(sphere_position.x, sphere_position.y + 4, sphere_position.z);
-spot_light.target = scene;
-spot_light.castShadow = true;
-spot_light.receiveShadow = true;
-//spot_light.shadowDarkness = light_spot_shadow_darkness;
-spot_light.shadow.camera.near	= light_spot_camera_near;		
-scene.add(spot_light);
-
-
+    // Add abbient light
+    let am_light = new THREE.AmbientLight(light_am_color);
+    // soft white light
+    scene.add(am_light);
+    // Add directional light
+    spot_light = new THREE.SpotLight(light_spot_color, light_spot_intensity);
+    spot_light.position.set(
+      sphere_position.x,
+      sphere_position.y + 4,
+      sphere_position.z,
+    );
+    spot_light.target = scene;
+    spot_light.castShadow = true;
+    spot_light.receiveShadow = true;
+    spot_light.shadow.camera.near = light_spot_camera_near;
+    scene.add(spot_light);
 
     // simple sprite to indicate detected surfaces
     reticle = new THREE.Mesh(
@@ -348,33 +312,14 @@ scene.add(spot_light);
         .getElementById('overlay')
         .addEventListener('click', toggleAnimation);
       setIsMotion(true);
-      //document.getElementById('audio').loop = true;
-      // setTimeout(() => {
-      //   //document.getElementById('audio').play();
-      // }, 3000);
     }
   }
 
   function toggleAnimation() {
-    if (action.isRunning()) {
-      //action.forEach(element => {
-      action.stop();
-      action.reset();
-      // });
-    } else {
-      //action.forEach(element => {
-      action.play();
-      // });
-    }
   }
 
   // Utility function to update animated objects
   function updateAnimation() {
-    let dt = (Date.now() - lastFrame) / 1000;
-    lastFrame = Date.now();
-    if (mixer) {
-      mixer.update(dt);
-    }
   }
 
   function onXRFrame(t, frame) {
@@ -412,14 +357,6 @@ scene.add(spot_light);
   }
 
   function stopMotion() {
-    //let audioCon = document.getElementById('audio');
-    // if (isMotion) {
-    //   audioCon.pause();
-    // } else {
-    //   audioCon.play();
-    // }
-    // //toggleAnimation();
-    // setIsMotion(!isMotion);
   }
 
   useInjectReducer({ key, reducer });
@@ -449,7 +386,7 @@ scene.add(spot_light);
   return (
     <article>
       <Helmet>
-        <title>Animated Dog</title>
+        <title>Effile Tower</title>
         <meta name="description" content="Verse Labs Project Persian Cat AR" />
       </Helmet>
       <div>
@@ -462,51 +399,10 @@ scene.add(spot_light);
         />
         <ARHtmlContent />
       </div>
-
-      {/* <CenteredSection>
-          <H2>
-            <FormattedMessage {...messages.startProjectHeader} />
-          </H2>
-          <p>
-            <FormattedMessage {...messages.startProjectMessage} />
-          </p>
-        </CenteredSection> */}
     </article>
   );
 }
 
-HomePage.propTypes = {
-  loading: PropTypes.bool,
-  error: PropTypes.oneOfType([PropTypes.object, PropTypes.bool]),
-  repos: PropTypes.oneOfType([PropTypes.array, PropTypes.bool]),
-  onSubmitForm: PropTypes.func,
-  username: PropTypes.string,
-  onChangeUsername: PropTypes.func,
-};
-
-const mapStateToProps = createStructuredSelector({
-  repos: makeSelectRepos(),
-  username: makeSelectUsername(),
-  loading: makeSelectLoading(),
-  error: makeSelectError(),
-});
-
-export function mapDispatchToProps(dispatch) {
-  return {
-    onChangeUsername: evt => dispatch(changeUsername(evt.target.value)),
-    onSubmitForm: evt => {
-      if (evt !== undefined && evt.preventDefault) evt.preventDefault();
-      dispatch(loadRepos());
-    },
-  };
-}
-
-const withConnect = connect(
-  mapStateToProps,
-  mapDispatchToProps,
-);
-
 export default compose(
-  withConnect,
   memo,
 )(HomePage);
