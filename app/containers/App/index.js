@@ -16,6 +16,7 @@ import Sphere from 'containers/Sphere/Loadable';
 import TokyoCity from 'containers/TokyoCity/Loadable';
 import School from 'containers/School/Loadable';
 import Cars from 'containers/Cars/Loadable';
+import SubTitle from 'containers/SubTitle/Loadable';
 import Dog from 'containers/Dog/Loadable';
 import Tower from 'containers/Tower/Loadable';
 import HomePage from 'containers/HomePage/Loadable';
@@ -46,10 +47,11 @@ export default function App() {
       </Helmet>
       {/* <Header /> */}
       <Switch>
-        <Route exact path="/" component={HomePage} />
+        <Route exact path="/" component={SubTitle} />
         <Route exact path="/cat" component={PersianCat} />
         <Route exact path="/sphere" component={Sphere} />
         <Route exact path="/cars" component={Cars} />
+        <Route exact path="/subtitle" component={SubTitle} />
         <Route exact path="/dog" component={Dog} />
         <Route exact path="/tower" component={Tower} />
         <Route exact path="/city" component={TokyoCity} />
