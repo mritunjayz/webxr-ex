@@ -44,11 +44,12 @@ function StartExperience({
           <div className="common-ar-content">
             {!isSurfaceTracked ? (
               <div>
-                <p>Tracking surface...</p>
+                {/* <p>Tracking surface...</p> */}
                 {/* <img src={mobileTrack} alt="mobile track" /> */}
               </div>
             ) : !isObjPlaced ? (
-              <p>Place cursor and tap</p>
+              // <p>Place cursor and tap</p>
+              <span></span>
             ) : (
               ''
             )}

@@ -10,6 +10,10 @@ const Mercedes = require('./model/mercedes.glb');
 const Truck = require('./model/truck.glb');
 const Jaguar = require('./model/jaguar.glb');
 const Wheel = require('./model/wheel.glb');
+import texta from 'assets/texta.png';
+import textb from 'assets/textb.png';
+import textc from 'assets/textc.png';
+import textd from 'assets/textd.png';
 import PropTypes from 'prop-types';
 import { Helmet } from 'react-helmet';
 import { connect } from 'react-redux';
@@ -24,7 +28,9 @@ import { handelOverlayClick, loadAllModel } from './utils';
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { FontLoader } from 'three/examples/jsm/loaders/FontLoader.js';
-import {TextGeometry} from 'three//examples/jsm/geometries/TextGeometry.js';
+import {TextGeometry} from 'three/examples/jsm/geometries/TextGeometry.js';
+//import {CubeGeometry} from 'three/examples/jsm/geometries/CubeGeometry.js';
+
 
 
 import { makeSelectLoading } from 'containers/App/selectors';
@@ -46,6 +52,7 @@ export function HomePage({ location }) {
   let truck = null;
   let jaguar = null;
   let wheel = null;
+  let cube = null;
 
   const carsConstant = [
     { path: Chevy_truck, name: 'Chevy_truck' },
@@ -61,7 +68,7 @@ export function HomePage({ location }) {
   const [isObjPlaced, setIsObjPlaced] = React.useState(false);
   const [modelAdded, setModelAdded] = React.useState([]);
   const [lang, setLang] = React.useState('hi');
-  const [currentText, setCurrentText] = React.useState('Text is hererere');
+  const [currentText, setCurrentText] = React.useState('Trasnlation goes ...');
 
 
 
@@ -95,6 +102,35 @@ export function HomePage({ location }) {
 // 	} );
 // } );
 
+const texLoader = new THREE.TextureLoader();
+
+const texURL1 = texta;
+const texURL2 = textb;
+const texURL3 = textc;
+const texURL4 = textd;
+const texURL5 = 'https://threejs.org/examples/models/gltf/LeePerrySmith/Map-SPEC.jpg';
+const texURL6 = 'https://threejs.org/examples/textures/cube/pisa/px.png';
+
+const mat1 = new THREE.MeshBasicMaterial({color: 0xffffff, map: texLoader.load(texURL1)});
+const mat2 = new THREE.MeshBasicMaterial({color: 0xffffff, map: texLoader.load(texURL2)});
+const mat3 = new THREE.MeshBasicMaterial({color: 0xffffff, map: texLoader.load(texURL3)});
+const mat4 = new THREE.MeshBasicMaterial({color: 0xffffff, map: texLoader.load(texURL4)});
+const mat5 = new THREE.MeshBasicMaterial({color: 0xffffff, map: texLoader.load(texURL1)});
+const mat6 = new THREE.MeshBasicMaterial({color: 0xffffff, map: texLoader.load(texURL3)});
+
+var material = [
+    mat1,
+    mat2,
+    mat3,
+    mat4,
+    mat5,
+    mat6,
+];
+
+cube = new THREE.Mesh(new THREE.BoxGeometry(0.15, 0.15, 0.15), material);
+cube.position.set( -0.3, 0.75, -1.8 );
+
+  scene.add(cube);
 
 var loaderFont = new FontLoader();
 loaderFont.load( 'https://threejs.org/examples/fonts/gentilis_regular.typeface.json', function ( font ) {
@@ -118,9 +154,19 @@ loaderFont.load( 'https://threejs.org/examples/fonts/gentilis_regular.typeface.j
   );
 
   mesh = new THREE.Mesh( textGeometry, textMaterial );
-  mesh.position.set( 0, 0, -3.5 );
+  mesh.position.set( -0.7, -0.7, -2.4 );
+  
 
   scene.add( mesh );
+
+  // let sprite = new THREE.TextSprite({
+  //   text: 'Hello World!',
+  //   fontFamily: 'Arial, Helvetica, sans-serif',
+  //   fontSize: 12,
+  //   color: '#ffbbff',
+  // });
+  // sprite.position.set(0, 0, -3.5);
+  //scene.add(sprite);
 
 }); 
 
@@ -145,7 +191,7 @@ loaderFont.load( 'https://threejs.org/examples/fonts/gentilis_regular.typeface.j
       truck = res.truck;
       wheel = res.wheel;
       jaguar = res.jaguar;
-      setModelAdded([{ name: 'hindi', data: 'hi' },{ name: 'japanese', data: 'jpn' }, { name: 'french', data: 'fr' }, { name: 'Arabic', data: 'ar' }, { name: 'Chinese', data: 'zh' }]);
+      setModelAdded([{ name: 'hindi', data: 'hi' },{ name: 'japanese', data: 'ja' }, { name: 'french', data: 'fr' }, { name: 'arabic', data: 'ar' }, { name: 'chinese', data: 'zh' }]);
     });
 
     light = new THREE.PointLight(0xffffff, 0.8, 100); // soft white light
@@ -323,6 +369,10 @@ loaderFont.load( 'https://threejs.org/examples/fonts/gentilis_regular.typeface.j
 
 
   function placeObject() {
+    document
+      .getElementsByClassName('dropdown-content')[0]
+      .classList.toggle('show');
+    console.log('placeObject');
     if (reticle.visible && model) {
       reticle.visible = false;
       xrHitTestSource.cancel();
@@ -360,6 +410,10 @@ loaderFont.load( 'https://threejs.org/examples/fonts/gentilis_regular.typeface.j
       //   test();
       // }, 1000 / 60);
     }
+      const overlayDom = document.getElementById('overlay');
+      overlayDom.removeEventListener('click', placeObject);
+      overlayDom.addEventListener('click', handelOverlayClickLang);
+      
   }
 
   const hasParentWithMatchingSelector = (target, selector) => {
@@ -369,6 +423,9 @@ loaderFont.load( 'https://threejs.org/examples/fonts/gentilis_regular.typeface.j
   };
 
   function handelOverlayClickLang(event) {
+    document
+      .getElementsByClassName('dropdown-content')[0]
+      .classList.toggle('show');
     console.log('handelOverlayClickLang', event);
     if (event)
     if (hasParentWithMatchingSelector(event.target, '.dropdown')) {
@@ -383,13 +440,28 @@ loaderFont.load( 'https://threejs.org/examples/fonts/gentilis_regular.typeface.j
         window.localStorage.setItem('lang', 'fr');
         setLang('fr');
       }
+      if (hasParentWithMatchingSelector(event.target, '.japanese')) {
+        setLang('ja');
+        console.log('hindii--------------');
+        window.localStorage.setItem('lang', 'ja');
+      }
+      if (hasParentWithMatchingSelector(event.target, '.arabic')) {
+        setLang('ar');
+        console.log('hindii--------------');
+        window.localStorage.setItem('lang', 'ar');
+      }
+      if (hasParentWithMatchingSelector(event.target, '.chinese')) {
+        setLang('zh');
+        console.log('hindii--------------');
+        window.localStorage.setItem('lang', 'zh');
+      }
     }
   }
 
-  const openDropdown = () =>
-    document
-      .getElementsByClassName('dropdown-content')[0]
-      .classList.toggle('show');
+  // const openDropdown = () =>
+  //   document
+  //     .getElementsByClassName('dropdown-content')[0]
+  //     .classList.toggle('show');
 
   // Utility function to update animated objects
   function updateAnimation() {
@@ -401,6 +473,14 @@ loaderFont.load( 'https://threejs.org/examples/fonts/gentilis_regular.typeface.j
   }
 
   function onXRFrame(t, frame) {
+    var SPEED = 0.01;
+
+
+    cube.rotation.x -= SPEED * 2;
+    cube.rotation.y -= SPEED;
+    cube.rotation.z -= SPEED * 3;
+
+
     const { session } = frame;
     session.requestAnimationFrame(onXRFrame);
     light.position.set(camera.position.x, camera.position.y, camera.position.z);
@@ -413,7 +493,7 @@ loaderFont.load( 'https://threejs.org/examples/fonts/gentilis_regular.typeface.j
         const pose = hitTestResults[0].getPose(xrRefSpace);
         // place a reticle at the intersection point
         reticle.matrix.fromArray(pose.transform.matrix);
-        reticle.visible = true;
+        //reticle.visible = true;
         setIsSurfaceTracked(true);
       } else {
         setIsSurfaceTracked(false);
@@ -493,8 +573,8 @@ loaderFont.load( 'https://threejs.org/examples/fonts/gentilis_regular.typeface.j
 
     font: font,
 
-    size: 0.1,
-    height: 0.05,
+    size: 0.06,
+    height: 0.02,
     // curveSegments: 0.05,
 
     // bevelThickness: 0.05,
@@ -508,7 +588,7 @@ loaderFont.load( 'https://threejs.org/examples/fonts/gentilis_regular.typeface.j
   );
 
   let meshr = new THREE.Mesh( textGeometry, textMaterial );
-  meshr.position.set( 0, 0, -3.5 );
+  meshr.position.set( -0.7, -0.7, -2.4 );
   console.log(scene);
 
   scene.remove( mesh );
@@ -647,8 +727,8 @@ loaderFont.load( 'https://threejs.org/examples/fonts/gentilis_regular.typeface.j
                 );
               })}
             </div>
-            <button className="dropbtn" onClick={openDropdown}>
-             Hindi
+            <button className="dropbtn" >
+             Speaker Lang
             </button>
           </div>
         )}
