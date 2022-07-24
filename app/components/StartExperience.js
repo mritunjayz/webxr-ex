@@ -1,5 +1,6 @@
 import React from 'react';
-import startEX from 'assets/startEx.png';
+import startEX from 'assets/startExd.png';
+import startEXC from 'assets/startExc.png';
 import mobileTrack from 'assets/mobileTrack.png';
 import classNames from 'classnames';
 
@@ -12,13 +13,18 @@ function StartExperience({
   isSurfaceTracked,
   isObjPlaced,
 }) {
+  const width = window.innerWidth;
+  const height = window.innerHeight;
+  const isMobile = width < 768;
+  const bgIamge = isMobile ? startEXC : startEX;
   return (
     <div>
       <div
         id="overlay"
         style={{
-          background: `url(${startEX}) no-repeat center fixed`,
-          backgroundSize: 'cover',
+          background: `url(${bgIamge}) no-repeat center fixed`,
+          backgroundSize: `${width}px ${height}px`,
+
         }}
       >
         <div className="info-area">

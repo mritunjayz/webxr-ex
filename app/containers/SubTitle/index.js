@@ -14,6 +14,7 @@ import PropTypes from 'prop-types';
 import { Helmet } from 'react-helmet';
 import { connect } from 'react-redux';
 import { compose } from 'redux';
+import axios from 'axios';
 import { createStructuredSelector } from 'reselect';
 
 import StartExperience from 'components/StartExperience';
@@ -59,7 +60,9 @@ export function HomePage({ location }) {
   const [isSurfaceTracked, setIsSurfaceTracked] = React.useState(false);
   const [isObjPlaced, setIsObjPlaced] = React.useState(false);
   const [modelAdded, setModelAdded] = React.useState([]);
+  const [lang, setLang] = React.useState('hi');
   const [currentText, setCurrentText] = React.useState('Text is hererere');
+
 
 
   const search = location.search;
@@ -142,7 +145,7 @@ loaderFont.load( 'https://threejs.org/examples/fonts/gentilis_regular.typeface.j
       truck = res.truck;
       wheel = res.wheel;
       jaguar = res.jaguar;
-      setModelAdded(['Chevy_truck', 'Mercedes', 'Truck', 'Jaguar', 'Wheel']);
+      setModelAdded([{ name: 'hindi', data: 'hi' },{ name: 'japanese', data: 'jpn' }, { name: 'french', data: 'fr' }, { name: 'Arabic', data: 'ar' }, { name: 'Chinese', data: 'zh' }]);
     });
 
     light = new THREE.PointLight(0xffffff, 0.8, 100); // soft white light
@@ -311,6 +314,7 @@ loaderFont.load( 'https://threejs.org/examples/fonts/gentilis_regular.typeface.j
     setIsWebXRStarted(false);
     setIsSurfaceTracked(false);
     setIsObjPlaced(false);
+    window.localStorage.setItem('lang', '-');
   }
 
   const test = () => {
@@ -340,20 +344,45 @@ loaderFont.load( 'https://threejs.org/examples/fonts/gentilis_regular.typeface.j
       // instead of placing an object we will just toggle animation state
       const overlayDom = document.getElementById('overlay');
       overlayDom.removeEventListener('click', placeObject);
-      overlayDom.addEventListener('click', handelOverlayClick);
-      overlayDom.addEventListener('touchmove', handelOverlayClick);
-      overlayDom.myParams = {
-        scene,
-        model,
-        wheel,
-        truck,
-        mercedes,
-        jaguar,
-      };
-      setInterval(() => {
-        //console.log('interval', currentText, scene);
-        test();
-      }, 1000 / 60);
+      //overlayDom.addEventListener('click', handelOverlayClick);
+      // overlayDom.addEventListener('touchmove', handelOverlayClick);
+      // overlayDom.myParams = {
+      //   scene,
+      //   model,
+      //   wheel,
+      //   truck,
+      //   mercedes,
+      //   jaguar,
+      // };
+      overlayDom.addEventListener('click', handelOverlayClickLang);
+      // setInterval(() => {
+      //   //console.log('interval', currentText, scene);
+      //   test();
+      // }, 1000 / 60);
+    }
+  }
+
+  const hasParentWithMatchingSelector = (target, selector) => {
+    return [...document.querySelectorAll(selector)].some(el =>
+      el.contains(target),
+    );
+  };
+
+  function handelOverlayClickLang(event) {
+    console.log('handelOverlayClickLang', event);
+    if (event)
+    if (hasParentWithMatchingSelector(event.target, '.dropdown')) {
+      console.log(hasParentWithMatchingSelector(event.target, '.hindi'));
+      if (hasParentWithMatchingSelector(event.target, '.hindi')) {
+        setLang('hi');
+        console.log('hindii--------------');
+        window.localStorage.setItem('lang', 'hi');
+      }
+      if (hasParentWithMatchingSelector(event.target, '.french')) {
+        console.log('french--------------');
+        window.localStorage.setItem('lang', 'fr');
+        setLang('fr');
+      }
     }
   }
 
@@ -434,7 +463,7 @@ loaderFont.load( 'https://threejs.org/examples/fonts/gentilis_regular.typeface.j
   //   return number;
   // }
 
-  const onSpeechResult = event => {
+  const onSpeechResult = async event => {
     // The SpeechRecognitionEvent results property returns a SpeechRecognitionResultList object
     // The SpeechRecognitionResultList object contains SpeechRecognitionResult objects.
     // It has a getter so it can be accessed like an array
@@ -445,10 +474,22 @@ loaderFont.load( 'https://threejs.org/examples/fonts/gentilis_regular.typeface.j
     // We then return the transcript property of the SpeechRecognitionAlternative object
     const speechResult = event.results[0][0].transcript.toLowerCase();
     setCurrentText(speechResult);
+    console.log('speechResult', speechResult);
+
+
+    const re = await axios.post('https://arsubs.herokuapp.com/', {
+    text: speechResult,
+  });
+  console.log(re);
+  // .then(res => {
+  //   console.log(res);
+  // }).catch(err => {})
+
+
     var loaderFont = new FontLoader();
 loaderFont.load( 'https://threejs.org/examples/fonts/gentilis_regular.typeface.json', function ( font ) {
 
-  var textGeometry = new TextGeometry( speechResult, {
+  var textGeometry = new TextGeometry( re.data, {
 
     font: font,
 
@@ -468,12 +509,15 @@ loaderFont.load( 'https://threejs.org/examples/fonts/gentilis_regular.typeface.j
 
   let meshr = new THREE.Mesh( textGeometry, textMaterial );
   meshr.position.set( 0, 0, -3.5 );
+  console.log(scene);
 
   scene.remove( mesh );
-  scene.remove.apply(scene, scene.children);
+  scene.remove( meshr );
+  scene.remove(scene.children[scene.children.length - 1]);
+  //scene.remove.apply(scene, scene.children);
   scene.add( meshr );
 });
-    console.log(speechResult, scene, model);
+    //console.log(speechResult, scene, model);
     // diagnosticPara.textContent = 'Speech received: ' + speechResult + '.';
     // if (speechResult === phrase) {
     //   resultPara.textContent = 'I heard the correct phrase!';
@@ -505,16 +549,16 @@ loaderFont.load( 'https://threejs.org/examples/fonts/gentilis_regular.typeface.j
     const speechRecognitionList = new SpeechGrammarList();
     speechRecognitionList.addFromString(grammar, 1);
     recognition.grammars = speechRecognitionList;
-    recognition.lang = 'en-US';
+    recognition.lang = lang;
     //recognition.continuous = true;
     recognition.interimResults = false;
     recognition.maxAlternatives = 1;
 
-    setInterval(() => {
+    //setInterval(() => {
       //console.log('test calleddddddd', recognition);
       recognition.start();
       recognition.onresult = onSpeechResult;
-    }, 1000);
+    //}, 1000);
 
     // recognition.onresult = onSpeechResult;
 
@@ -541,10 +585,26 @@ loaderFont.load( 'https://threejs.org/examples/fonts/gentilis_regular.typeface.j
     //   console.log('SpeechRecognition.onaudioend');
     // };
 
-    // recognition.onend = function(event) {
-    //   //Fired when the speech recognition service has disconnected.
-    //   console.log('SpeechRecognition.onend');
-    // };
+    //window.localStorage.seItem('langff', 'fr')
+
+    recognition.onend = function(event) {
+      //Fired when the speech recognition service has disconnected.
+      //console.log(window.localStorage)
+     // window.localStorage.seItem('lang', 'fr')
+      console.log(window.localStorage.getItem('lang'), 'looooocc');
+      if(window.localStorage.getItem('lang') === '-'){
+        recognition.lang = 'hi';
+        window.localStorage.setItem('lang', 'hi')
+        console.log('inside nulll')
+      }
+      else{
+        recognition.lang = window.localStorage.getItem('lang');
+      }
+      //recognition.lang = window.localStorage.getItem('lang')||'hi';
+      console.log('SpeechRecognition.onend', lang);
+      recognition.start();
+      //console.log('SpeechRecognition.onend');
+    };
 
     // recognition.onnomatch = function(event) {
     //   //Fired when the speech recognition service returns a final result with no significant recognition. This may involve some degree of recognition, which doesn't meet or exceed the confidence threshold.
@@ -576,19 +636,19 @@ loaderFont.load( 'https://threejs.org/examples/fonts/gentilis_regular.typeface.j
   function ARHtmlContent() {
     return isWebXRStarted ? (
       <div className="ARContent">
-        {isObjPlaced && (
+        {true && (
           <div className="dropdown">
             <div id="myDropdown" className="dropdown-content">
               {modelAdded.map(element => {
                 return (
-                  <div key={element} className={element}>
-                    <button>{element}</button>
+                  <div key={element.name} className={element.name}>
+                    <button style={ { width: "100%"} } >{element.name}</button>
                   </div>
                 );
               })}
             </div>
             <button className="dropbtn" onClick={openDropdown}>
-              Dropdown
+             Hindi
             </button>
           </div>
         )}
@@ -602,7 +662,7 @@ loaderFont.load( 'https://threejs.org/examples/fonts/gentilis_regular.typeface.j
   return (
     <article>
       <Helmet>
-        <title>Cars Demo</title>
+        <title>AR translated Subs</title>
         <meta name="description" content="Verse Labs Project car options AR" />
       </Helmet>
       <div>
