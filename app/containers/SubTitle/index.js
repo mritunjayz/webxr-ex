@@ -14,6 +14,8 @@ import texta from 'assets/texta.png';
 import textb from 'assets/textb.png';
 import textc from 'assets/textc.png';
 import textd from 'assets/textd.png';
+import texte from 'assets/texte.png';
+import textf from 'assets/textf.png';
 import PropTypes from 'prop-types';
 import { Helmet } from 'react-helmet';
 import { connect } from 'react-redux';
@@ -108,15 +110,15 @@ const texURL1 = texta;
 const texURL2 = textb;
 const texURL3 = textc;
 const texURL4 = textd;
-const texURL5 = 'https://threejs.org/examples/models/gltf/LeePerrySmith/Map-SPEC.jpg';
-const texURL6 = 'https://threejs.org/examples/textures/cube/pisa/px.png';
+const texURL5 = texte;
+const texURL6 = textf;
 
 const mat1 = new THREE.MeshBasicMaterial({color: 0xffffff, map: texLoader.load(texURL1)});
 const mat2 = new THREE.MeshBasicMaterial({color: 0xffffff, map: texLoader.load(texURL2)});
 const mat3 = new THREE.MeshBasicMaterial({color: 0xffffff, map: texLoader.load(texURL3)});
 const mat4 = new THREE.MeshBasicMaterial({color: 0xffffff, map: texLoader.load(texURL4)});
-const mat5 = new THREE.MeshBasicMaterial({color: 0xffffff, map: texLoader.load(texURL1)});
-const mat6 = new THREE.MeshBasicMaterial({color: 0xffffff, map: texLoader.load(texURL3)});
+const mat5 = new THREE.MeshBasicMaterial({color: 0xffffff, map: texLoader.load(texURL5)});
+const mat6 = new THREE.MeshBasicMaterial({color: 0xffffff, map: texLoader.load(texURL6)});
 
 var material = [
     mat1,
@@ -127,8 +129,8 @@ var material = [
     mat6,
 ];
 
-cube = new THREE.Mesh(new THREE.BoxGeometry(0.15, 0.15, 0.15), material);
-cube.position.set( -0.3, 0.75, -1.8 );
+cube = new THREE.Mesh(new THREE.BoxGeometry(0.1, 0.1, 0.1), material);
+cube.position.set( -0.5, 0.9, -1.8 );
 
   scene.add(cube);
 
