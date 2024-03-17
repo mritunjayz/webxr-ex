@@ -5,32 +5,14 @@
  */
 
 import React, { memo } from 'react';
-import PropTypes from 'prop-types';
-import { Helmet } from 'react-helmet';
-import { FormattedMessage } from 'react-intl';
-import { connect } from 'react-redux';
-import { compose } from 'redux';
-import { createStructuredSelector } from 'reselect';
-import { BsFillPlayCircleFill, BsFillPauseCircleFill } from 'react-icons/bs';
-
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
+import PropTypes from 'prop-types';
+import { Helmet } from 'react-helmet';
+import { compose } from 'redux';
+import { BsFillPlayCircleFill, BsFillPauseCircleFill } from 'react-icons/bs';
 
 import StartExperience from 'components/StartExperience';
-
-import { useInjectReducer } from 'utils/injectReducer';
-import { useInjectSaga } from 'utils/injectSaga';
-import {
-  makeSelectRepos,
-  makeSelectLoading,
-  makeSelectError,
-} from 'containers/App/selectors';
-import H2 from 'components/H2';
-import { loadRepos } from '../App/actions';
-import { changeUsername } from './actions';
-import { makeSelectUsername } from './selectors';
-import reducer from './reducer';
-import saga from './saga';
 
 import './index.css';
 
@@ -386,9 +368,6 @@ scene.add(spot_light);
     // setIsMotion(!isMotion);
   }
 
-  useInjectReducer({ key, reducer });
-  useInjectSaga({ key, saga });
-
   function ARHtmlContent() {
     return isWebXRStarted ? (
       <div className="ARContent">
@@ -442,35 +421,8 @@ scene.add(spot_light);
 HomePage.propTypes = {
   loading: PropTypes.bool,
   error: PropTypes.oneOfType([PropTypes.object, PropTypes.bool]),
-  repos: PropTypes.oneOfType([PropTypes.array, PropTypes.bool]),
-  onSubmitForm: PropTypes.func,
-  username: PropTypes.string,
-  onChangeUsername: PropTypes.func,
 };
 
-const mapStateToProps = createStructuredSelector({
-  repos: makeSelectRepos(),
-  username: makeSelectUsername(),
-  loading: makeSelectLoading(),
-  error: makeSelectError(),
-});
-
-export function mapDispatchToProps(dispatch) {
-  return {
-    onChangeUsername: evt => dispatch(changeUsername(evt.target.value)),
-    onSubmitForm: evt => {
-      if (evt !== undefined && evt.preventDefault) evt.preventDefault();
-      dispatch(loadRepos());
-    },
-  };
-}
-
-const withConnect = connect(
-  mapStateToProps,
-  mapDispatchToProps,
-);
-
 export default compose(
-  withConnect,
   memo,
 )(HomePage);

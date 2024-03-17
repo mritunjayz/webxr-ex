@@ -1,10 +1,6 @@
 import React, { memo } from 'react';
-import PropTypes from 'prop-types';
 import { Helmet } from 'react-helmet';
-import { FormattedMessage } from 'react-intl';
-import { connect } from 'react-redux';
 import { compose } from 'redux';
-import { createStructuredSelector } from 'reselect';
 import { BsFillPlayCircleFill, BsFillPauseCircleFill } from 'react-icons/bs';
 
 import * as THREE from 'three';
@@ -19,17 +15,6 @@ import StartExperience from 'components/StartExperience';
 
 import { useInjectReducer } from 'utils/injectReducer';
 import { useInjectSaga } from 'utils/injectSaga';
-import {
-  makeSelectRepos,
-  makeSelectLoading,
-  makeSelectError,
-} from 'containers/App/selectors';
-import H2 from 'components/H2';
-import { loadRepos } from '../App/actions';
-import { changeUsername } from './actions';
-import { makeSelectUsername } from './selectors';
-import reducer from './reducer';
-import saga from './saga';
 
 import './index.css';
 

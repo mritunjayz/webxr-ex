@@ -1,6 +1,7 @@
 import React from 'react';
 import startEX from 'assets/startExd.png';
 import startEXC from 'assets/startExc.png';
+import startEXD from 'assets/startExDog.png';
 import mobileTrack from 'assets/mobileTrack.png';
 import classNames from 'classnames';
 
@@ -16,7 +17,9 @@ function StartExperience({
   const width = window.innerWidth;
   const height = window.innerHeight;
   const isMobile = width < 768;
-  const bgIamge = isMobile ? startEXC : startEX;
+  let bgIamge = isMobile ? startEXC : startEX;
+  bgIamge = window.location.pathname === '/dog' && isMobile ? startEXD : bgIamge;
+
   return (
     <div>
       <div
